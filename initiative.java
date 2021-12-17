@@ -251,6 +251,7 @@ public class initiative implements CommandExecutor,Listener {
                 //check for dead, though I may need to do this before the for loop even begins
                 if(deadUnit.hasEntry(keynote)){
                     skipTurn(player);
+                    //addcomment test
                 }
                 else{
                     pturn.getInventory().addItem(item);
