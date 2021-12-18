@@ -3,10 +3,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class App extends JavaPlugin {
     @Override
     public void onEnable() {
-        Borpa cum = new Borpa(this);
+        Borpa pointer = new Borpa(this);
         getLogger().info("DND Tools Loaded");
-        this.getCommand("lpointer").setExecutor(cum);
-        getServer().getPluginManager().registerEvents(cum, this); 
+        this.getCommand("lpointer").setExecutor(pointer);
+        getServer().getPluginManager().registerEvents(pointer, this); 
 
         dmNotes notery = new dmNotes(this);
         this.getCommand("dnote").setExecutor(notery);

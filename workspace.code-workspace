@@ -5,6 +5,7 @@
 		}
 	],
 	"settings": {
-		"java.jdt.ls.vmargs": "-Dfile.ecoding=UTF-8"
+		"java.jdt.ls.vmargs": "-Dfile.ecoding=UTF-8",
+		"java.configuration.updateBuildConfiguration": "automatic"
 	}
 }

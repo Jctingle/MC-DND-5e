@@ -12,6 +12,7 @@ import org.bukkit.Color;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.Particle;
+import org.bukkit.Server;
 import org.bukkit.Particle.DustOptions;
 import org.bukkit.block.Block;
 import org.bukkit.command.Command;
@@ -68,7 +69,7 @@ public class initiative implements CommandExecutor,Listener {
             } else if (args[0].equals("end")) {
                     final Objective objecteye = board.getObjective("initiative");
                     objecteye.unregister();
-                    ItemStack item = new ItemStack(Material.BARRIER, 1);
+                    ItemStack item = new ItemStack(Material.EMERALD, 1);
                     ItemMeta meta = item.getItemMeta();
                     meta.setDisplayName("End Turn");
                     item.setItemMeta(meta);
@@ -141,7 +142,7 @@ public class initiative implements CommandExecutor,Listener {
                 Integer currentTurn = allRolls.get(orderIndex);
 
                 //End Turn Item code
-                ItemStack item = new ItemStack(Material.BARRIER, 1);
+                ItemStack item = new ItemStack(Material.EMERALD, 1);
                 ItemMeta meta = item.getItemMeta();
                 meta.setDisplayName("End Turn");
                 item.setItemMeta(meta);
@@ -161,7 +162,7 @@ public class initiative implements CommandExecutor,Listener {
                 }
             else if (args[0].equals("kill")){
                 //redundant item initialize code
-                ItemStack item = new ItemStack(Material.BARRIER, 1);
+                ItemStack item = new ItemStack(Material.EMERALD, 1);
                 ItemMeta meta = item.getItemMeta();
                 meta.setDisplayName("End Turn");
                 item.setItemMeta(meta);
@@ -218,7 +219,7 @@ public class initiative implements CommandExecutor,Listener {
             }
     }
     public void skipTurn(Player player){
-        ItemStack item = new ItemStack(Material.BARRIER, 1);
+        ItemStack item = new ItemStack(Material.EMERALD, 1);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("End Turn");
         item.setItemMeta(meta);
@@ -262,15 +263,17 @@ public class initiative implements CommandExecutor,Listener {
     }
     @EventHandler
     public void onRightClick(PlayerInteractEvent event){
+        //fatal crash happening here
+        Server server = Bukkit.getServer();
         Player player = event.getPlayer();  
-        ItemStack item = new ItemStack(Material.BARRIER, 1);
+        ItemStack item = new ItemStack(Material.EMERALD, 1);
         ItemMeta meta = item.getItemMeta();
         meta.setDisplayName("End Turn");
         item.setItemMeta(meta);
         String lastTurnUnit = "";
             if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK){
                 if(player.getInventory().getItemInMainHand().getItemMeta().equals(meta)){  
-
+                    event.setCancelled(true);
                     Bukkit.broadcastMessage(ChatColor.GOLD + player.getName() + ChatColor.DARK_RED + " Has finished their Turn");
                     player.getInventory().remove(item);
 
@@ -286,11 +289,11 @@ public class initiative implements CommandExecutor,Listener {
                         Integer valNote = entry.getValue();
                         if (valNote != currentTurn){
                             activeUnit.removeEntry(keynote);
-                            lastTurnUnit = new String(keynote);
                         }
                     }
                     //this is the setting active state
-                    for (Map.Entry<String, Integer> entry : playerRoll.entrySet()) {
+                    for (Map.Entry<String, Integer> entry : playerRoll.entrySet()) { 
+                        server.getLogger().warning("Inside the turn set loop");
                         String keynote = entry.getKey();
                         Integer valNote = entry.getValue();
                         if (valNote == currentTurn){
@@ -300,15 +303,18 @@ public class initiative implements CommandExecutor,Listener {
                             }
                             Player pturn = unitOwners.get(keynote);
                             //check for dead, though I may need to do this before the for loop even begins
+                            server.getLogger().warning("right before the if logic");
                             if(deadUnit.hasEntry(keynote)){
+                                //skip turn if unit is dead
                                 skipTurn(player);
                             }
                             else if(pturn.getInventory().contains(item)){
                                 pturn.sendMessage("Someone in your bracket finished their turn");
                             }
-                            else if(pturn.equals(player) && !keynote.equals(lastTurnUnit) ){
-                                pturn.sendMessage("Turn ended");
-                            }
+                            // else if(pturn.equals(player)){
+                            //     //this is supposed to be for if a player owns more than one unit and they share an initiative
+                            //     pturn.sendMessage("Turn Ended");
+                            // }
                             else{
                                 pturn.getInventory().addItem(item);
                                 pturn.sendTitle("Your Turn", "Please make your move.", 1, 20, 1);
