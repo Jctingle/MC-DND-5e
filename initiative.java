@@ -94,6 +94,7 @@ public class initiative implements CommandExecutor,Listener {
                 int i = 1;
                 if (args[1].equals("late")){
                     i++;
+                    //something happens here, and I need to make sure that it's not really fucking things, I think I know the problem though, index might be going below 0
                 }
                 String playerName = args[i].toString();
                 Integer iniInt = Integer.valueOf(args[i+1]);
@@ -124,8 +125,10 @@ public class initiative implements CommandExecutor,Listener {
                         if (current > newcomer){
                             orderIndex++;
                         }
-                        else{
-                            orderIndex--;
+                        else {
+                            if (orderIndex > 0){
+                                orderIndex--;
+                            }
                         }
                     }
                 }
@@ -311,10 +314,6 @@ public class initiative implements CommandExecutor,Listener {
                             else if(pturn.getInventory().contains(item)){
                                 pturn.sendMessage("Someone in your bracket finished their turn");
                             }
-                            // else if(pturn.equals(player)){
-                            //     //this is supposed to be for if a player owns more than one unit and they share an initiative
-                            //     pturn.sendMessage("Turn Ended");
-                            // }
                             else{
                                 pturn.getInventory().addItem(item);
                                 pturn.sendTitle("Your Turn", "Please make your move.", 1, 20, 1);
