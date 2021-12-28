@@ -52,7 +52,6 @@ public class initiative implements CommandExecutor,Listener {
     Map<String, Integer> playerRoll = new Hashtable<>();
     ScoreboardManager manager = Bukkit.getScoreboardManager();
     final Scoreboard board = manager.getNewScoreboard();
-    
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         if(sender instanceof Player){
@@ -305,8 +304,6 @@ public class initiative implements CommandExecutor,Listener {
                                 activeUnit.addEntry(keynote);
                             }
                             Player pturn = unitOwners.get(keynote);
-                            //check for dead, though I may need to do this before the for loop even begins
-                            server.getLogger().warning("right before the if logic");
                             if(deadUnit.hasEntry(keynote)){
                                 //skip turn if unit is dead
                                 skipTurn(player);

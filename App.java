@@ -14,7 +14,11 @@ public class App extends JavaPlugin {
 
         initiative innit = new initiative(this);
         this.getCommand("init").setExecutor(innit);
-        getServer().getPluginManager().registerEvents(innit, this); 
+        getServer().getPluginManager().registerEvents(innit, this);
+        
+        mobicon mobi = new mobicon(this);
+        this.getCommand("init").setExecutor(mobi);
+        getServer().getPluginManager().registerEvents(mobi, this); 
 
     }
     @Override
