@@ -1,6 +1,7 @@
 package jeffersondev;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.Map;
 
@@ -23,6 +24,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -30,6 +32,8 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.bukkit.scheduler.BukkitRunnable;
 import jeffersondev.App;
+import net.md_5.bungee.api.ChatMessageType;
+import net.md_5.bungee.api.chat.TextComponent;
 
 public class mobicon implements CommandExecutor,Listener,TabCompleter {   
     private App app;
@@ -41,7 +45,8 @@ public class mobicon implements CommandExecutor,Listener,TabCompleter {
     Double health = (double) 10;
     String mobName = new String();
     double AC = (double) 0.0;
-    Map<Player, ArrayList<String>> unitSpawner = new Hashtable<>();
+    Map<Player, ArrayList<String>> unitSpawner = new HashMap<>();
+    boolean hasType = false;
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         if(sender instanceof Player){
@@ -64,7 +69,7 @@ public class mobicon implements CommandExecutor,Listener,TabCompleter {
             }
     }
     @EventHandler
-    public void onRightClick(PlayerInteractEvent e) {
+    public void onRightClick(PlayerInteractEvent e, PlayerInteractEntityEvent e1) {
         if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             if(tokenPlacer.contains(e.getPlayer())) {
                 Player p = (Player) e.getPlayer();
@@ -80,17 +85,38 @@ public class mobicon implements CommandExecutor,Listener,TabCompleter {
                     token.setAI(false);
                     token.setHealth(health);
                     token.setCustomName(mobName);
-                    token.setCustomNameVisible(true);
+                    token.setCustomNameVisible(true);   
                     token.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).setBaseValue(AC);
+
                     //find some way to set health and track it, as well as AC, and interact with health
                     }
                 else{
+                    p.sendMessage("Please select solid ground");
                 }
             }
-            else{
-                //control who sees the AC somehow
+            //right click on the specific mob, and gets their info
+            else if(unitSpawner.containsKey(e.getPlayer())){
+                Player p1 = (Player) e.getPlayer();
+                ArrayList tempOwned = unitSpawner.get(p1);
+                //will also need a case here to handle DM pulling info
+                if (tempOwned.contains(e1.getRightClicked().getCustomName())){
+                    LivingEntity tempEnt = (LivingEntity) e1.getRightClicked();
+                    String tempName = tempEnt.getCustomName();
+                    String tempAC = tempEnt.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).toString();
+                    String tempHealth =  "" + tempEnt.getHealth();
+                    p1.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("" + tempName + " AC: " + tempAC + " CurrentHealth: " + tempHealth));
+                }
             }
         }   
+    }
+    public void adjustMob(LivingEntity victim, double damage, boolean isHeal){
+            //check for bool, if true then damage, if false then heal, absorption hearts for tempHP? that actually works SO WELL
+            double tempHealth = victim.getHealth();
+            tempHealth = tempHealth += damage;
+    }
+    public void deleteMob(LivingEntity deceased, Player owner){
+            //delete mob from existance
+            //remove value from player key if player has more than one unit, or remove key and value if just the one unit
     }
     @Override
     public ArrayList<String> onTabComplete(CommandSender sender, Command cmd, String commandLabel, String[] args) {
