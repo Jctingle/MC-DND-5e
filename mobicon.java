@@ -41,6 +41,7 @@ public class mobicon implements CommandExecutor,Listener,TabCompleter {
         this.app = app;
     }
     ArrayList<Player> tokenPlacer = new ArrayList<>();
+    ArrayList<Player> dungeonMaster = new ArrayList<>();
     String mobType = new String();
     Double health = (double) 10;
     String mobName = new String();
@@ -83,6 +84,7 @@ public class mobicon implements CommandExecutor,Listener,TabCompleter {
                     tokenPlacer.remove(p);
                     token.setSilent(true);
                     token.setAI(false);
+                    //check and set max health higher than current
                     token.setHealth(health);
                     token.setCustomName(mobName);
                     token.setCustomNameVisible(true);   
@@ -104,19 +106,44 @@ public class mobicon implements CommandExecutor,Listener,TabCompleter {
                     String tempName = tempEnt.getCustomName();
                     String tempAC = tempEnt.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).toString();
                     String tempHealth =  "" + tempEnt.getHealth();
-                    p1.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("" + tempName + " AC: " + tempAC + " CurrentHealth: " + tempHealth));
+                    String tempTempHP = "" + tempEnt.getAbsorptionAmount();
+                    p1.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("" + tempName + " AC: " + tempAC + " CurrentHealth: " + tempHealth + " tempHP: " + tempTempHP));
                 }
             }
         }   
     }
-    public void adjustMob(LivingEntity victim, double damage, boolean isHeal){
+    public void adjustMob(LivingEntity victim, double modim, Integer modType){
             //check for bool, if true then damage, if false then heal, absorption hearts for tempHP? that actually works SO WELL
             double tempHealth = victim.getHealth();
-            tempHealth = tempHealth += damage;
+            tempHealth = tempHealth += modim;
+            //if healing
+            switch (modType){
+                case 0:
+                    //healing
+                    //check if current health is .5 AKA in death saving state
+                    //check for maxhealth value
+                    tempHealth = tempHealth += modim;
+                case 1:
+                    //damage
+                    //check for tempHP first, and then apply damage split between by first removing all tempHP, then apply damage to base health
+                    //check for value, ability to drop to .5 is nice as it will represent death saving state
+                    tempHealth = tempHealth -= modim;
+                case 2:
+                    //tempHP
+                    //get absorption level, then check if absorb/thp greater than damage double, if greater than do nothing else set value to new temp HP
+            }
     }
     public void deleteMob(LivingEntity deceased, Player owner){
-            //delete mob from existance
+            //delete mob from existence
             //remove value from player key if player has more than one unit, or remove key and value if just the one unit
+            if (unitSpawner.get(owner).size() >= 2){
+                ArrayList<String> removedList = unitSpawner.get(owner);
+                removedList.remove(deceased);
+                unitSpawner.replace(owner, removedList);
+            }
+            else{
+                unitSpawner.remove(owner);
+            }
     }
     @Override
     public ArrayList<String> onTabComplete(CommandSender sender, Command cmd, String commandLabel, String[] args) {
