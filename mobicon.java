@@ -151,7 +151,7 @@ public class Mobicon implements CommandExecutor,Listener,TabCompleter {
                     token.setHealth(health);
                     token.setInvulnerable(true);
                     token.addScoreboardTag("token");
-                    //this is kind of fucky, find an easier way to associate with player names
+                    //this is kind of wacky, find an easier way to associate with player names
                     // token.addScoreboardTag("owner:" + p.getName());
                     // idOwners.put(token.getUniqueId(), p);
                     if(tokenInfo.size() > 4){
