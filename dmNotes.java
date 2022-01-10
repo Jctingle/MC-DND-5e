@@ -30,11 +30,12 @@ public class dmNotes implements CommandExecutor,Listener {
         this.app = app;
     }
     ArrayList<Player> notePlacers = new ArrayList<>();
+    //need to privatize this between players
     String noteText = new String(); 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         if(sender instanceof Player){
-            Player p = ((Player) sender).getPlayer();
+            Player p = ((Player) sender);
             if (!notePlacers.contains(p)) {
                 notePlacers.add(p);
                 StringBuilder builder = new StringBuilder();

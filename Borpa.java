@@ -33,7 +33,7 @@ public class Borpa implements CommandExecutor,Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         if(sender instanceof Player){
-            Player p = ((Player) sender).getPlayer();
+            Player p = ((Player) sender);
             if (args[0].equals("on") && !activeUsers.contains(p)) {
                 p.sendMessage("Pointer on");
                 activeUsers.add(p);

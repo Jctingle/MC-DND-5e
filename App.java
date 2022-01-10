@@ -16,10 +16,13 @@ public class App extends JavaPlugin {
         this.getCommand("init").setExecutor(innit);
         getServer().getPluginManager().registerEvents(innit, this);
         
-        mobicon mobi = new mobicon(this);
-        this.getCommand("init").setExecutor(mobi);
+        Mobicon mobi = new Mobicon(this);
+        this.getCommand("mobi").setExecutor(mobi);
         getServer().getPluginManager().registerEvents(mobi, this); 
 
+        Interact inti = new Interact(this);
+        this.getCommand("interact").setExecutor(inti);
+        getServer().getPluginManager().registerEvents(inti, this); 
     }
     @Override
     public void onDisable() {

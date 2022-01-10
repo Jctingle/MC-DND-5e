@@ -55,7 +55,8 @@ public class initiative implements CommandExecutor,Listener {
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         if(sender instanceof Player){
-            Player p = ((Player) sender).getPlayer();
+            Player p = ((Player) sender);
+            //normally I would case these, and I might still, but some have multiple conditionals
             if (args[0].equals("start") && !activeUsers.contains(p)) {
                 final Objective objecteye = board.registerNewObjective("initiative", "dummy", "initiative", RenderType.INTEGER);
                 objecteye.setDisplaySlot(DisplaySlot.SIDEBAR);
@@ -265,7 +266,7 @@ public class initiative implements CommandExecutor,Listener {
     }
     @EventHandler
     public void onRightClick(PlayerInteractEvent event){
-        //fatal crash happening here
+        //something here IS NOT HAPPY
         Server server = Bukkit.getServer();
         Player player = event.getPlayer();  
         ItemStack item = new ItemStack(Material.EMERALD, 1);
@@ -274,7 +275,10 @@ public class initiative implements CommandExecutor,Listener {
         item.setItemMeta(meta);
         String lastTurnUnit = "";
             if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK){
-                if(player.getInventory().getItemInMainHand().getItemMeta().equals(meta)){  
+                if (player.getInventory().getItemInMainHand() == null || player.getInventory().getItemInMainHand().getType() == Material.AIR) {
+                    // they have nothing in their hand
+                }
+                else if(player.getInventory().getItemInMainHand().getItemMeta().equals(meta)){  
                     event.setCancelled(true);
                     Bukkit.broadcastMessage(ChatColor.GOLD + player.getName() + ChatColor.DARK_RED + " Has finished their Turn");
                     player.getInventory().remove(item);
