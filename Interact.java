@@ -59,25 +59,28 @@ public class Interact implements CommandExecutor,Listener {
             deleteMob.add(p);
             return true;
         }
-        else if (args[1].toString().equals("heal")){
+        else if (args[0].toString().equals("heal")){
             ArrayList builder = new ArrayList<>();
             builder.add(args[1]);
             builder.add("0");
             actionVal.put(p, builder);
+            p.sendMessage("Right click to Heal for " + args[1]);
             return true;
         }
-        else if (args[1].toString().equals("damage")){
+        else if (args[0].toString().equals("damage")){
             ArrayList builder = new ArrayList<>();
             builder.add(args[1]);
             builder.add("1");
             actionVal.put(p, builder);
+            p.sendMessage("Right click to Damage for " + args[1]);
             return true;
         }
-        else if (args[1].toString().equals("temphp")){
+        else if (args[0].toString().equals("temphp")){
             ArrayList builder = new ArrayList<>();
             builder.add(args[1]);
             builder.add("2");
             actionVal.put(p, builder);
+            p.sendMessage("Right click to up TempHP to " + args[1]);
             return true;
         }
         else {
@@ -86,9 +89,9 @@ public class Interact implements CommandExecutor,Listener {
     }
     public void adjustMob(LivingEntity victim, double modim, Integer modType){
         //check for bool, if true then damage, if false then heal, absorption hearts for tempHP? that actually works SO WELL
-        double tempHealth = 0 + victim.getHealth();
+        double tempHealth = 0.0 + victim.getHealth();
         double maxHealth = victim.getAttribute(Attribute.GENERIC_MAX_HEALTH).getValue();
-        double adjValue = 0 + modim;
+        double adjValue = 0.0 + modim;
         double currentHealth = victim.getHealth();
         //if healing
         switch (modType){
@@ -96,7 +99,7 @@ public class Interact implements CommandExecutor,Listener {
                 //healing
                 //check for scoreboardtag Deathsaving, then remove because healing
                 if(victim.getScoreboardTags().contains("deathSaving")){
-                    tempHealth = 0 + modim;
+                    tempHealth = 0.0 + modim;
                     victim.setHealth(tempHealth);
                     victim.removeScoreboardTag("deathSaving");
                 }
@@ -109,17 +112,23 @@ public class Interact implements CommandExecutor,Listener {
                         victim.setHealth(tempHealth);
                     }
                 }
+                break;
             case 1:
                 //damage
                 //check for tempHP first, and then apply damage split between by first removing all tempHP, then apply damage to base health
                 //check for value, ability to drop to .5 is nice as it will represent death saving state
-                if (victim.getAbsorptionAmount() > 0) {
-                    adjValue -= victim.getAbsorptionAmount();
-                    if (adjValue > 0){
+                if (victim.getAbsorptionAmount() > 0.0) {
+                    adjValue =  adjValue - victim.getAbsorptionAmount();
+                    if (adjValue > 0.0){
                         if (!checkForDeath(adjValue, currentHealth)){
-                            tempHealth -= adjValue;
+                            tempHealth = tempHealth - adjValue;
+                            victim.setAbsorptionAmount(0.0);
                             victim.setHealth(tempHealth);
                         }
+                    }
+                    else{
+                        double holdValue = victim.getAbsorptionAmount();
+                        victim.setAbsorptionAmount(holdValue-modim);
                     }
                 }
                 else if(!checkForDeath(adjValue, currentHealth)){
@@ -128,14 +137,17 @@ public class Interact implements CommandExecutor,Listener {
                 }
                 else if(checkForDeath(adjValue, currentHealth) && victim.getScoreboardTags().contains("PlayerCharacter")){
                     setDeathSave(victim);
+                    victim.setHealth(1.0);
                 }
                 else if(checkForDeath(adjValue, currentHealth)){
                     deleteMob(victim);
                 }
+                break;
             case 2:
                 if (victim.getAbsorptionAmount() < modim) {
                     victim.setAbsorptionAmount(modim);
                 }
+                break;
                 //tempHP
         }
     }
@@ -159,39 +171,49 @@ public class Interact implements CommandExecutor,Listener {
     }
     @EventHandler
     public void onRightClick(PlayerInteractEntityEvent e1) {
+        //contents can be checked for permission if the tags contain the players name, EASY
         if(deleteMob.contains(e1.getPlayer())){
             LivingEntity killMob = (LivingEntity) e1.getRightClicked();
             deleteMob(killMob);
             deleteMob.remove(e1.getPlayer());
         }
+        else if(actionVal.containsKey(e1.getPlayer())){
+            ArrayList<String> tempRead = new ArrayList();
+            tempRead = actionVal.get(e1.getPlayer());
+            LivingEntity touched = (LivingEntity) e1.getRightClicked();
+
+            adjustMob(touched, Double.parseDouble(tempRead.get(0)), Integer.parseInt(tempRead.get(1)));
+            actionVal.remove(e1.getPlayer());
+        }
         else{
+            //need some way to control this, probably will use permissions
             Player p1 = (Player) e1.getPlayer();
             //will also need a case here to handle DM pulling info
                 LivingEntity tempEnt = (LivingEntity) e1.getRightClicked();
-                String tempName = tempEnt.getCustomName();
-                //have to change this to custom nbt or scoreboard tag
-                //scoreboard tags are easiest to check for YES or NO, slash basically checkboxes
-                // String tempAC = Double.toString(tempEnt.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).getValue());
-                String tempHealth =  "" + tempEnt.getHealth();
-                String tempTempHP = "" + tempEnt.getAbsorptionAmount();
-                String tempAC = new String();
-                // startsWith("ac:")
-                Set tempThing = tempEnt.getScoreboardTags();
-                HashMap<String, String> tempMap = new HashMap();
-                for (String rip: tempEnt.getScoreboardTags()){
-                    String[] ripped = rip.split(":");
-                    if(ripped.length > 1){
-                        tempMap.put(ripped[0], ripped[1]);
+                if (tempEnt.getScoreboardTags().contains("token")){
+                    e1.setCancelled(true);
+                    String tempName = tempEnt.getCustomName();
+                    //have to change this to custom nbt or scoreboard tag
+                    //scoreboard tags are easiest to check for YES or NO, slash basically checkboxes
+                    // String tempAC = Double.toString(tempEnt.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).getValue());
+                    String tempHealth =  "" + tempEnt.getHealth();
+                    String tempTempHP = "" + tempEnt.getAbsorptionAmount();
+                    String tempAC = new String();
+                    // startsWith("ac:")
+                    Set tempThing = tempEnt.getScoreboardTags();
+                    HashMap<String, String> tempMap = new HashMap();
+                    for (String rip: tempEnt.getScoreboardTags()){
+                        String[] ripped = rip.split(":");
+                        if(ripped.length > 1){
+                            tempMap.put(ripped[0], ripped[1]);
+                        }
                     }
+                    tempAC = tempMap.get("ac");
+                    // for(String tag : tempEnt.getScoreboardTags()){
+                    //     if (tag.startsWith("ac:")){
+                    //         tempAC = tag.replace("ac:", "");
+                    p1.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("" + tempName + " AC: " + tempAC + " CurrentHealth: " + tempHealth + " tempHP: " + tempTempHP));
                 }
-                tempAC = tempMap.get("ac");
-                // for(String tag : tempEnt.getScoreboardTags()){
-                //     if (tag.startsWith("ac:")){
-                //         tempAC = tag.replace("ac:", "");
-                //     }
-                //  }
-                //need a switch with cases here; have to provide sitations for when tempHP is completely empty
-                p1.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("" + tempName + " AC: " + tempAC + " CurrentHealth: " + tempHealth + " tempHP: " + tempTempHP));
             }
         }
 }

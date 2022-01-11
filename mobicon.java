@@ -8,6 +8,7 @@ import java.util.Set;
 import java.util.TreeSet;
 import java.util.UUID;
 
+import org.apache.commons.lang.enums.EnumUtils;
 import org.bukkit.Color;
 import org.bukkit.Location;
 
@@ -55,21 +56,24 @@ public class Mobicon implements CommandExecutor,Listener,TabCompleter {
     ArrayList<Player> dungeonMaster = new ArrayList<>();
     Map<Player, ArrayList<UUID>> unitSpawner = new HashMap<>();
     Map<UUID, Player> idOwners = new HashMap<>();
-    //will need an onmobdeath reaction for when they are murdered by hand or /killed to remove them from the list of units in unitSpawners
-    //lots of stuff to build out, this comment and the ones below will be kind of a checklist
-    //linked usage of modify method
-    //detailed help/instructions, partially for my sake lmao
-    //actually test it
-    //Inventory and equipment manager, make it fluid so it can work on any mob
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         if(sender instanceof Player){
             Player p = ((Player) sender);
-            if (!tokenPlacer.contains(p)) {
+            //EntityType.values()
+            if(args[0].equals("help")){
+                p.sendMessage("Proper format is /token <MobType> <Name> <Health> <AC> <true-false:PlayerCharacter");
+                return true;
+            }
+            else if (args.length < 4){
+                p.sendMessage("Invalid Token Format, use /token help for more information");
+                return true;
+            }
+            else if (!tokenPlacer.contains(p)) {
                 tokenPlacer.add(p);
                 //need if's or situation proofers
                 //so it's /mobi <mobtype> <mobname> <health> <ac> <pc or not pc>
-                    p.sendMessage("Creating Token" + args[0]);
+                    p.sendMessage("Creating a Token for " + args[1] + " as a " + args[0]);
                     String mobType = args[0].toUpperCase();
                     String mobName = args[1];
                     String health = args[2];
@@ -79,7 +83,7 @@ public class Mobicon implements CommandExecutor,Listener,TabCompleter {
                     temphold.add(mobName);
                     temphold.add(health);
                     temphold.add(AC);
-                    if (args.length >= 5 && args[4].equals("pc")){
+                    if (args.length >= 5 && args[4].equals("true")){
                         temphold.add("PC");
                         informationHold.put(p, temphold);
                     }
@@ -87,11 +91,11 @@ public class Mobicon implements CommandExecutor,Listener,TabCompleter {
                         informationHold.put(p, temphold);
                     }
                 // noteText = args[0];
-                return true;
+                    return true;
                                         }
             
             else if(tokenPlacer.contains(p)){
-                p.sendMessage("Creating Token" + args[0]);
+                p.sendMessage("adjusting" + args[0]);
                 String mobType = args[0].toUpperCase();
                 String mobName = args[1];
                 String health = args[2];
@@ -101,7 +105,7 @@ public class Mobicon implements CommandExecutor,Listener,TabCompleter {
                 temphold.add(mobName);
                 temphold.add(health);
                 temphold.add(AC);
-                if (args.length >= 5 && args[4].equals("pc")){
+                if (args.length >= 5 && args[4].equals("true")){
                     temphold.add("PC");
                     informationHold.replace(p, temphold);
                 }
@@ -131,35 +135,49 @@ public class Mobicon implements CommandExecutor,Listener,TabCompleter {
                     //deconstructor I guess
                     ArrayList<String> tokenInfo = informationHold.get(p);
                     String mobType = tokenInfo.get(0).toString();
-                    String mobName = tokenInfo.get(1).toString();
-                    Double health = Double.parseDouble(tokenInfo.get(2).toString());
-                    Double AC = Double.parseDouble(tokenInfo.get(3).toString());
-                    //end deconstructor
-
-                    Location pSpotCopy = pSpot.clone();
-                    pSpotCopy.setY(pSpot.getY() - 2);
-                    LivingEntity token = (LivingEntity) p.getLocation().getWorld().spawnEntity(pSpot,EntityType.valueOf(mobType));
-                    tokenPlacer.remove(p);
-                    token.setSilent(true);
-                    token.setAI(false);
-                    //check and set max health higher than current
-
-                    token.setCustomName(mobName);
-                    token.setCustomNameVisible(true);   
-                    token.addScoreboardTag("ac:" + AC);
-                    token.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
-                    token.setHealth(health);
-                    token.setInvulnerable(true);
-                    token.addScoreboardTag("token");
-                    //this is kind of wacky, find an easier way to associate with player names
-                    // token.addScoreboardTag("owner:" + p.getName());
-                    // idOwners.put(token.getUniqueId(), p);
-                    if(tokenInfo.size() > 4){
-                        token.addScoreboardTag("PlayerCharacter");
-                        //this will be changed if more options emerge in this argument slot
+                    boolean gate = false;
+                    for (EntityType type : EntityType.values()) {
+                        if (type.name().equals(mobType)){
+                            gate = true;
+                        }
+                            
                     }
-                    informationHold.remove(p);
+                    if(gate){
+                        String mobName = tokenInfo.get(1).toString();
+                        Double health = Double.parseDouble(tokenInfo.get(2).toString());
+                        Double AC = Double.parseDouble(tokenInfo.get(3).toString());
+                        //end deconstructor
+
+                        Location pSpotCopy = pSpot.clone();
+                        pSpotCopy.setY(pSpot.getY() - 2);
+                        LivingEntity token = (LivingEntity) p.getLocation().getWorld().spawnEntity(pSpot,EntityType.valueOf(mobType));
+                        tokenPlacer.remove(p);
+                        token.setSilent(true);
+                        token.setAI(false);
+                        //check and set max health higher than current
+
+                        token.setCustomName(mobName);
+                        token.setCustomNameVisible(true);   
+                        token.addScoreboardTag("ac:" + AC);
+                        token.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
+                        token.setHealth(health);
+                        token.setInvulnerable(true);
+                        token.addScoreboardTag("token");
+                        informationHold.remove(p);
+                        //this is kind of wacky, find an easier way to associate with player names
+                        // token.addScoreboardTag("owner:" + p.getName());
+                        // idOwners.put(token.getUniqueId(), p);
+                        if(tokenInfo.size() > 4){
+                            token.addScoreboardTag("PlayerCharacter");
+                            //this will be changed if more options emerge in this argument slot
+                        }
+                    }
+                    else{
+                        tokenPlacer.remove(p);
+                        informationHold.remove(p);
+                        p.sendMessage("Not an accepted Token Mob");
                     //add PC tag for player tokens
+                    }
                     }
                 else{
                     p.sendMessage("Please select solid ground");
