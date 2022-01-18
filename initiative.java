@@ -117,6 +117,7 @@ public class initiative implements CommandExecutor,Listener {
                     score.setScore(Integer.parseInt(initRoll));
                     p.sendMessage("Successfully joined with " + unitName + " Please wait for the round to begin");
                     //send a message to the DM about who is joining with what score
+                    //this will be combined with writing permissions
                 }
             }
             else if (args[0].equals("begin")) {
