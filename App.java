@@ -40,6 +40,10 @@ public class App extends JavaPlugin {
         Grimoire grimoire = new Grimoire(this);
         this.getCommand("grimoire").setExecutor(grimoire);
         getServer().getPluginManager().registerEvents(grimoire, this); 
+
+        Spellcomponent spellcomp = new Spellcomponent(this);
+        this.getCommand("spellcomponent").setExecutor(spellcomp);
+        getServer().getPluginManager().registerEvents(spellcomp, this); 
     }
     @Override
     public void onDisable() {
