@@ -53,9 +53,9 @@ public class Mobicon implements CommandExecutor,Listener,TabCompleter {
     ArrayList<Player> deleteMob = new ArrayList<>();
     Map<Player, ArrayList<String>> informationHold = new HashMap<>();
 
-    ArrayList<Player> dungeonMaster = new ArrayList<>();
-    Map<Player, ArrayList<UUID>> unitSpawner = new HashMap<>();
-    Map<UUID, Player> idOwners = new HashMap<>();
+    // ArrayList<Player> dungeonMaster = new ArrayList<>();
+    // Map<Player, ArrayList<UUID>> unitSpawner = new HashMap<>();
+    // Map<UUID, Player> idOwners = new HashMap<>();
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         if(sender instanceof Player){

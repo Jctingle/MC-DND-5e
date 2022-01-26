@@ -23,7 +23,7 @@ import org.bukkit.util.Vector;
 import org.bukkit.scheduler.BukkitRunnable;
 import jeffersondev.App;
 
-
+//rename this stupid file lmao, fix errors and make it more stable generally
 public class Borpa implements CommandExecutor,Listener {   
     private App app;
     public Borpa(App app){

@@ -1,8 +1,17 @@
 package jeffersondev;
+import java.io.File;
+
+import org.bukkit.Bukkit;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 public class App extends JavaPlugin {
     @Override
     public void onEnable() {
+        Plugin plugin = Bukkit.getPluginManager().getPlugin("DMTools");
+        File f = new File(plugin.getDataFolder() + "/");
+        if(!f.exists()){
+            f.mkdir();
+        }
         Borpa pointer = new Borpa(this);
         getLogger().info("DND Tools Loaded");
         this.getCommand("lpointer").setExecutor(pointer);
@@ -23,6 +32,14 @@ public class App extends JavaPlugin {
         Interact inti = new Interact(this);
         this.getCommand("interact").setExecutor(inti);
         getServer().getPluginManager().registerEvents(inti, this); 
+
+        Equipmentmanager equip = new Equipmentmanager(this);
+        this.getCommand("equip").setExecutor(equip);
+        getServer().getPluginManager().registerEvents(equip, this); 
+
+        Grimoire grimoire = new Grimoire(this);
+        this.getCommand("grimoire").setExecutor(grimoire);
+        getServer().getPluginManager().registerEvents(grimoire, this); 
     }
     @Override
     public void onDisable() {
