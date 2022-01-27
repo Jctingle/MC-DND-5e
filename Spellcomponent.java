@@ -62,13 +62,15 @@ public class Spellcomponent implements CommandExecutor,Listener {
             //error checking here for args length and contents
                 String travelType = args[1];
                 String particle = args[2];
+                //build fields from args for variable readability
                 ItemStack travelToken = new ItemStack(Material.PRISMARINE_SHARD, 1);
                 ItemMeta travelmeta = travelToken.getItemMeta();
                 travelmeta.setDisplayName(travelType);
-                travelToken.setItemMeta(travelmeta);
+                //build the lore components
                 ArrayList<String> travelLore = new ArrayList<String>();
                 travelLore.add(particle);
                 travelmeta.setLore(travelLore);
+                travelToken.setItemMeta(travelmeta);
                 p.getInventory().addItem(travelToken);
                 break;
             case "onsite":
@@ -81,13 +83,13 @@ public class Spellcomponent implements CommandExecutor,Listener {
                 ItemStack onsiteToken = new ItemStack(Material.PRISMARINE_SHARD, 1);
                 ItemMeta onsitemeta = onsiteToken.getItemMeta();
                 onsitemeta.setDisplayName(onsiteType);
-                onsiteToken.setItemMeta(onsitemeta);
                 ArrayList<String> onsiteLore = new ArrayList<String>();
                 onsiteLore.add(onsiteParticle);
                 onsiteLore.add(onsiteShape);
                 onsiteLore.add(onsiteSize);
                 onsiteLore.add(onsitePersist);
                 onsitemeta.setLore(onsiteLore);
+                onsiteToken.setItemMeta(onsitemeta);
                 p.getInventory().addItem(onsiteToken);
                 break;
         }

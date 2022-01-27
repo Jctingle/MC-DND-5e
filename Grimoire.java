@@ -44,6 +44,7 @@ import jeffersondev.App;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 
 public class Grimoire implements CommandExecutor,Listener {
     private App app;
@@ -51,6 +52,7 @@ public class Grimoire implements CommandExecutor,Listener {
         this.app = app;
     }
     Map<Player, Inventory> playerView = new HashMap<>();
+    Map<Player, Inventory> playerCall = new HashMap<>();
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         Player p = (Player) sender;
@@ -80,21 +82,76 @@ public class Grimoire implements CommandExecutor,Listener {
         //     }
             
         // }
-        //three args, first will be file name, 2nd will be string within, call command will access the file and print the string with in,
-        //so save testfile testconents vs load testfile
+        if (args.length == 0){
+            Inventory inv = spellViewer();
+            openInventory(p, inv);
+        }
+        else if (args.length == 1 && args[0].equals("new")){
+            Inventory inv = spellConstructor();
+            playerView.put(p, inv);
+            openInventory(p, inv);
+        }
+
         return true;
     }
     public void openInventory(final HumanEntity ent, Inventory inv) {
         ent.openInventory(inv);
     }
-    public Inventory spellConstructor(Player input, String spellName){
-        //not actual code just temporary return
-        Inventory inv = Bukkit.createInventory(null, 18, "Spell Construction"); 
+    public Inventory spellViewer(){
+        Inventory inv = Bukkit.createInventory(null, 18, "Spell library"); 
+        File dir = new File("plugins/DMTools");
+        File[] directoryListing = dir.listFiles();
+        //do some math here and find the factor of 9, then do multiple pages, blah blah blah
+        if (directoryListing != null) {
+            Integer itercount = 0;
+          for (File child : directoryListing) {
+              String fileIter = child.getAbsolutePath();
+              HashMap<String, String> spellContents = load(fileIter);
+              ItemStack referenceItem = new ItemStack(Material.valueOf(spellContents.get("item").toUpperCase()), 1);
+              ItemMeta referenceMeta= referenceItem.getItemMeta();
+              referenceMeta.setDisplayName(child.getName());
+              referenceItem.setItemMeta(referenceMeta);
+              inv.setItem(itercount, referenceItem);
+              itercount++;
+          }
+        }
+        //construct labels here
         return inv;
     }
-    public ItemStack spellComponent(Player sender, String[] info){
-        ItemStack item = new ItemStack(Material.PRISMARINE_SHARD, 1);
-        return item;
+    public Inventory spellConstructor(){
+        Inventory inv = Bukkit.createInventory(null, 18, "Spell Construction"); 
+        ItemStack labelone = new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);
+        ItemStack labeltwo = new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);
+        ItemStack labelthree = new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);
+        ItemStack unusedSlot = new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1);
+        ItemMeta metaOne = labelone.getItemMeta();
+        ItemMeta metaTwo = labeltwo.getItemMeta();
+        ItemMeta metaThree = labelthree.getItemMeta();
+        ItemMeta metaUnused = unusedSlot.getItemMeta();
+        metaOne.setDisplayName("^^^ This is the Name & item Token slot ^^^");
+        labelone.setItemMeta(metaOne);
+        metaTwo.setDisplayName("^^^ This is Travel spell component slot ^^^");
+        labeltwo.setItemMeta(metaTwo);
+        metaThree.setDisplayName("^^^ This is the On-Site spell component slot ^^^");
+        labelthree.setItemMeta(metaThree);
+        metaUnused.setDisplayName("This Slot is currently unused");
+        unusedSlot.setItemMeta(metaUnused);
+        inv.setItem(9, labelone);
+        inv.setItem(10, labeltwo);
+        inv.setItem(11, labelthree);
+        for(Integer i=3; i<9; i++){
+            inv.setItem(i, unusedSlot);
+        }
+        for(Integer i=12; i<18; i++){
+            inv.setItem(i, unusedSlot);
+        }
+        //construct labels here
+        return inv;
+    }
+    public Inventory spellEditor(){
+        Inventory inv = Bukkit.createInventory(null, 18, "Spell Construction"); 
+        //construct labels here
+        return inv;
     }
     @EventHandler
     public void onInventoryClose(final InventoryCloseEvent e){
@@ -102,9 +159,23 @@ public class Grimoire implements CommandExecutor,Listener {
         if (e.getInventory() != playerView.get(e.getPlayer())) return;
         else{
             String fileName = e.getInventory().getItem(0).getItemMeta().getDisplayName();
-            Map<String, String> spellStorage = new HashMap<>();
+            ItemStack tokenSlot = e.getInventory().getItem(0);
+            ItemStack travelSlot = e.getInventory().getItem(1);
+            ItemStack onsiteSlot = e.getInventory().getItem(2);
+            ItemMeta travelMeta = travelSlot.getItemMeta();
+            ItemMeta onsiteMeta = onsiteSlot.getItemMeta();
+            HashMap<String, String> spellStorage = new HashMap<>();
+            spellStorage.put("item",tokenSlot.getType().toString());
+            spellStorage.put("traveltype",travelMeta.getDisplayName());
+            spellStorage.put("travelparticle",travelMeta.getLore().get(0));
+            spellStorage.put("onsiteeffect",onsiteMeta.getDisplayName());
+            spellStorage.put("onsiteshape",onsiteMeta.getLore().get(0));
+            spellStorage.put("onsitesize",onsiteMeta.getLore().get(1));
+            spellStorage.put("onsiteparticle",onsiteMeta.getLore().get(2));
+            spellStorage.put("persistant",onsiteMeta.getLore().get(3));
             //9 lines of spellStorage configuration based on inventoryslots 1,2,3
             save("plugins/DMTools/" + fileName +".spell", spellStorage);
+            playerView.remove(e.getPlayer());
             return;
         }
     }
