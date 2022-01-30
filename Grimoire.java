@@ -98,9 +98,9 @@ public class Grimoire implements CommandExecutor,Listener {
         ent.openInventory(inv);
     }
     public Inventory spellViewer(){
-        Inventory inv = Bukkit.createInventory(null, 18, "Spell library"); 
         File dir = new File("plugins/DMTools");
         File[] directoryListing = dir.listFiles();
+        Inventory inv = Bukkit.createInventory(null, 18, "Spell library"); 
         //do some math here and find the factor of 9, then do multiple pages, blah blah blah
         if (directoryListing != null) {
             Integer itercount = 0;
@@ -157,6 +157,7 @@ public class Grimoire implements CommandExecutor,Listener {
     public void onInventoryClose(final InventoryCloseEvent e){
         //this will make sense
         if (e.getInventory() != playerView.get(e.getPlayer())) return;
+        //logic to error catch cases where there are no items
         else{
             String fileName = e.getInventory().getItem(0).getItemMeta().getDisplayName();
             ItemStack tokenSlot = e.getInventory().getItem(0);
@@ -201,6 +202,7 @@ public class Grimoire implements CommandExecutor,Listener {
             return null;
         }
     }
+    //eventually want code to handle
     // @EventHandler
     // public void onRightClick(PlayerInteractEntityEvent e) {
 

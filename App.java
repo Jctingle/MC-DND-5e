@@ -12,7 +12,7 @@ public class App extends JavaPlugin {
         if(!f.exists()){
             f.mkdir();
         }
-        Borpa pointer = new Borpa(this);
+        LaserPointer pointer = new LaserPointer(this);
         getLogger().info("DND Tools Loaded");
         this.getCommand("lpointer").setExecutor(pointer);
         getServer().getPluginManager().registerEvents(pointer, this); 
