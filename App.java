@@ -9,8 +9,12 @@ public class App extends JavaPlugin {
     public void onEnable() {
         Plugin plugin = Bukkit.getPluginManager().getPlugin("DMTools");
         File f = new File(plugin.getDataFolder() + "/");
+        File f1 = new File(plugin.getDataFolder() + "/" + "Spells" + "/");
         if(!f.exists()){
             f.mkdir();
+            if(!f1.exists()){
+                f1.mkdir();
+            }
         }
         LaserPointer pointer = new LaserPointer(this);
         getLogger().info("DND Tools Loaded");

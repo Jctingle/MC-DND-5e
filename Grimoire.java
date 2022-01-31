@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.zip.GZIPInputStream;
@@ -52,7 +53,7 @@ public class Grimoire implements CommandExecutor,Listener {
         this.app = app;
     }
     Map<Player, Inventory> playerView = new HashMap<>();
-    Map<Player, Inventory> playerCall = new HashMap<>();
+    Map<Player, Inventory> playerEdit = new HashMap<>();
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         Player p = (Player) sender;
@@ -158,7 +159,7 @@ public class Grimoire implements CommandExecutor,Listener {
     public Inventory spellEditor(String fileName){
         //I really hate this one ngl
         HashMap<String, String> spellEdit = load("plugins/DMTools/" + fileName +".spell");
-        Inventory inv = Bukkit.createInventory(null, 18, "Spell Construction"); 
+        Inventory inv = Bukkit.createInventory(null, 18, "Spell Editing"); 
         ItemStack labelone = new ItemStack(Material.RED_STAINED_GLASS_PANE, 1);
         ItemStack labeltwo = new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);
         ItemStack labelthree = new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);
@@ -244,13 +245,38 @@ public class Grimoire implements CommandExecutor,Listener {
             spellStorage.put("onsitesize",onsiteMeta.getLore().get(1));
             spellStorage.put("onsiteparticle",onsiteMeta.getLore().get(2));
             spellStorage.put("persistant",onsiteMeta.getLore().get(3));
-            //9 lines of spellStorage configuration based on inventoryslots 1,2,3
             save("plugins/DMTools/" + fileName +".spell", spellStorage);
             playerView.remove(e.getPlayer());
             return;
         }
     }
+    @EventHandler
+    public void onInventoryClick(final InventoryClickEvent e) {
+        if (e.getInventory() != playerView.get(e.getWhoClicked())) return;
+        else{
+            ArrayList<Integer> badSlots = new ArrayList<>(Arrays.asList(3,4,5,6,7,8,9,10,11,12,13,14,15,16,17));
+            if (badSlots.contains(e.getRawSlot()) && e.getView().getTitle().equals("Spell Construction")){
+                // e.getWhoClicked().sendMessage(Integer.toString(e.getSlot()));
+                e.setCancelled(true);
+            }
+            badSlots.add(0);
+            if (badSlots.contains(e.getRawSlot()) && e.getView().getTitle().equals("Spell Editing")){
+                e.setCancelled(true);
+            }
+        }
+
+    }
+    @EventHandler
+    public void onInventoryClick(final InventoryDragEvent e) {
+        if (e.getInventory() != playerView.get(e.getWhoClicked())) {
+            return;
+        }
+        else{
+            e.setCancelled(true);
+        }
+    }
     //code to save spell data to storage
+    //inventory click, and possibly drag, don't really understand that one will be cancelled if it's certain slots
     public static <T extends Serializable> boolean save(String filePath, T object) {
         try {
             BukkitObjectOutputStream out = new BukkitObjectOutputStream(new GZIPOutputStream(new FileOutputStream(filePath)));
