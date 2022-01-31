@@ -61,18 +61,12 @@ public class LaserPointer implements CommandExecutor,Listener {
                 else{
                     activeUsers.put(p, Color.RED);
                 }
-                ItemStack pointerItem = new ItemStack(Material.AMETHYST_SHARD, 1);
-                ItemMeta pointerMeta = pointerItem.getItemMeta();
-                pointerMeta.setDisplayName("Laser Pointer");
-                pointerItem.setItemMeta(pointerMeta);
+                ItemStack pointerItem = matchItem();
                 p.getInventory().addItem(pointerItem);
         } else if (args[0].equals("off")) {
+                ItemStack pointerItem = matchItem();
                 p.sendMessage("Pointer off");
                 activeUsers.remove(p);
-                ItemStack pointerItem = new ItemStack(Material.AMETHYST_SHARD);
-                ItemMeta pointerMeta = pointerItem.getItemMeta();
-                pointerMeta.setDisplayName("Laser Pointer");
-                pointerItem.setItemMeta(pointerMeta);
                 p.getInventory().removeItem(pointerItem);
         }
             return true;
@@ -82,13 +76,18 @@ public class LaserPointer implements CommandExecutor,Listener {
             return false;
             }
     }
-    @EventHandler
-    public void onRightClick(PlayerInteractEvent e) {
+    public ItemStack matchItem(){
         ItemStack pointerItem = new ItemStack(Material.AMETHYST_SHARD);
         ItemMeta pointerMeta = pointerItem.getItemMeta();
         pointerMeta.setDisplayName("Laser Pointer");
-        pointerItem.setItemMeta(pointerMeta);
+        pointerItem.setItemMeta(pointerMeta); 
+
+        return pointerItem;
+    }
+    @EventHandler
+    public void onRightClick(PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            ItemStack pointerItem = matchItem();
             if(activeUsers.containsKey(e.getPlayer()) && e.getPlayer().getInventory().getItemInMainHand().getItemMeta().equals(pointerItem.getItemMeta())) {
                 Player p = (Player) e.getPlayer();
                 DustOptions dustOptions = new DustOptions(activeUsers.get(p), 1.0F);
@@ -105,11 +104,8 @@ public class LaserPointer implements CommandExecutor,Listener {
     }
     @EventHandler
     public void onRightClick(PlayerInteractEntityEvent e) {
-        ItemStack pointerItem = new ItemStack(Material.AMETHYST_SHARD);
-        ItemMeta pointerMeta = pointerItem.getItemMeta();
-        pointerMeta.setDisplayName("Laser Pointer");
-        pointerItem.setItemMeta(pointerMeta); 
-            if(activeUsers.containsKey(e.getPlayer()) && e.getPlayer().getInventory().getItemInMainHand().getItemMeta().equals(pointerItem.getItemMeta())) {
+        ItemStack pointerItem = matchItem();
+        if(activeUsers.containsKey(e.getPlayer()) && e.getPlayer().getInventory().getItemInMainHand().getItemMeta().equals(pointerItem.getItemMeta())) {           
                 Player p = (Player) e.getPlayer();
                 LivingEntity glower = (LivingEntity) e.getRightClicked();
                 PotionEffect targetGlow = new PotionEffect(PotionEffectType.GLOWING, 50, 1);

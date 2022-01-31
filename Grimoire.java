@@ -91,6 +91,13 @@ public class Grimoire implements CommandExecutor,Listener {
             playerView.put(p, inv);
             openInventory(p, inv);
         }
+        else if (args.length == 2 && args[0].equals("edit")){
+            String spellGrab = args[1];
+            Inventory inv = spellEditor(spellGrab);
+            playerView.put(p, inv);
+            openInventory(p, inv);
+        }
+        //do edit code
 
         return true;
     }
@@ -104,16 +111,16 @@ public class Grimoire implements CommandExecutor,Listener {
         //do some math here and find the factor of 9, then do multiple pages, blah blah blah
         if (directoryListing != null) {
             Integer itercount = 0;
-          for (File child : directoryListing) {
-              String fileIter = child.getAbsolutePath();
-              HashMap<String, String> spellContents = load(fileIter);
-              ItemStack referenceItem = new ItemStack(Material.valueOf(spellContents.get("item").toUpperCase()), 1);
-              ItemMeta referenceMeta= referenceItem.getItemMeta();
-              referenceMeta.setDisplayName(child.getName());
-              referenceItem.setItemMeta(referenceMeta);
-              inv.setItem(itercount, referenceItem);
-              itercount++;
-          }
+            for (File child : directoryListing) {
+                String fileIter = child.getAbsolutePath();
+                HashMap<String, String> spellContents = load(fileIter);
+                ItemStack referenceItem = new ItemStack(Material.valueOf(spellContents.get("item").toUpperCase()), 1);
+                ItemMeta referenceMeta= referenceItem.getItemMeta();
+                referenceMeta.setDisplayName(child.getName());
+                referenceItem.setItemMeta(referenceMeta);
+                inv.setItem(itercount, referenceItem);
+                itercount++;
+            }
         }
         //construct labels here
         return inv;
@@ -148,9 +155,72 @@ public class Grimoire implements CommandExecutor,Listener {
         //construct labels here
         return inv;
     }
-    public Inventory spellEditor(){
+    public Inventory spellEditor(String fileName){
+        //I really hate this one ngl
+        HashMap<String, String> spellEdit = load("plugins/DMTools/" + fileName +".spell");
         Inventory inv = Bukkit.createInventory(null, 18, "Spell Construction"); 
-        //construct labels here
+        ItemStack labelone = new ItemStack(Material.RED_STAINED_GLASS_PANE, 1);
+        ItemStack labeltwo = new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);
+        ItemStack labelthree = new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);
+        ItemStack unusedSlot = new ItemStack(Material.BLACK_STAINED_GLASS_PANE, 1);
+        ItemMeta metaOne = labelone.getItemMeta();
+        ItemMeta metaTwo = labeltwo.getItemMeta();
+        ItemMeta metaThree = labelthree.getItemMeta();
+        ItemMeta metaUnused = unusedSlot.getItemMeta();
+        metaOne.setDisplayName("^^^ This Slot is Uneditable ^^^");
+        labelone.setItemMeta(metaOne);
+        metaTwo.setDisplayName("^^^ This is Travel spell component slot ^^^");
+        labeltwo.setItemMeta(metaTwo);
+        metaThree.setDisplayName("^^^ This is the On-Site spell component slot ^^^");
+        labelthree.setItemMeta(metaThree);
+        metaUnused.setDisplayName("This Slot is currently unused");
+        unusedSlot.setItemMeta(metaUnused);
+        inv.setItem(9, labelone);
+        inv.setItem(10, labeltwo);
+        inv.setItem(11, labelthree);
+        for(Integer i=3; i<9; i++){
+            inv.setItem(i, unusedSlot);
+        }
+        for(Integer i=12; i<18; i++){
+            inv.setItem(i, unusedSlot);
+        }
+        //^^^^^^^^^^^^^^^^^LABEL SLOT CODE^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        ItemStack referenceItem = new ItemStack(Material.valueOf(spellEdit.get("item").toUpperCase()), 1);
+        ItemMeta referenceMeta= referenceItem.getItemMeta();
+        referenceMeta.setDisplayName(fileName);
+        referenceItem.setItemMeta(referenceMeta);
+        inv.setItem(0, referenceItem);
+        //^^^^^^^^^^^^^^^^^^^^^^^Slot 1 Filler^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        String travelType = spellEdit.get("traveltype");
+        String particle = spellEdit.get("travelparticle");
+        //build fields from args for variable readability
+        ItemStack travelToken = new ItemStack(Material.PRISMARINE_SHARD, 1);
+        ItemMeta travelmeta = travelToken.getItemMeta();
+        travelmeta.setDisplayName(travelType);
+        //build the lore components
+        ArrayList<String> travelLore = new ArrayList<String>();
+        travelLore.add(particle);
+        travelmeta.setLore(travelLore);
+        travelToken.setItemMeta(travelmeta);
+        inv.setItem(1, travelToken);
+        //^^^^^^^^^^^^^^^^^^^^^^^Slot 2 Filler^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        String onsiteType = spellEdit.get("onsiteeffect");
+        String onsiteParticle = spellEdit.get("onsiteparticle");
+        String onsiteShape = spellEdit.get("onsiteshape");
+        String onsiteSize = spellEdit.get("onsitesize");
+        String onsitePersist = spellEdit.get("persistant");              
+        ItemStack onsiteToken = new ItemStack(Material.PRISMARINE_SHARD, 1);
+        ItemMeta onsitemeta = onsiteToken.getItemMeta();
+        onsitemeta.setDisplayName(onsiteType);
+        ArrayList<String> onsiteLore = new ArrayList<String>();
+        onsiteLore.add(onsiteParticle);
+        onsiteLore.add(onsiteShape);
+        onsiteLore.add(onsiteSize);
+        onsiteLore.add(onsitePersist);
+        onsitemeta.setLore(onsiteLore);
+        onsiteToken.setItemMeta(onsitemeta);
+        inv.setItem(2, onsiteToken);
+        //^^^^^^^^^^^^^^^^^^^^^^^Slot 3 Filler^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
         return inv;
     }
     @EventHandler
@@ -202,11 +272,6 @@ public class Grimoire implements CommandExecutor,Listener {
             return null;
         }
     }
-    //eventually want code to handle
-    // @EventHandler
-    // public void onRightClick(PlayerInteractEntityEvent e) {
-
-    // }
     // Objects you are saving and loading must implement/extend Serializable or a Compilation Error will occur
     // FlatFile.save(plugin.getDataFolder() + "/fileName.extension", objectToSave);
     // You must ensure that the data stored in the file being loaded corresponds to the object being loaded back or a Runtime Error will occur
