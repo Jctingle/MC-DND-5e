@@ -22,6 +22,7 @@ import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
@@ -34,6 +35,8 @@ import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.util.RayTraceResult;
@@ -44,6 +47,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import jeffersondev.App;
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -54,37 +58,12 @@ public class Grimoire implements CommandExecutor,Listener {
     }
     Map<Player, Inventory> playerView = new HashMap<>();
     Map<Player, Inventory> playerEdit = new HashMap<>();
+    HashMap<Player, ArrayList<String>> grimcallers = new HashMap<>();
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         Player p = (Player) sender;
-        
-        // String callKind = args[0];
-        // String fileName = args[1];
-        // String Filecontents = new String();
-        // if(args.length > 2){
-        //     Filecontents = args[2];
-        // }
-        // Plugin plugin = Bukkit.getPluginManager().getPlugin("DMTools");
-        // if (args[0].equals("save")){
-        //     save("plugins/DMTools/" + fileName +".spell", Filecontents);
-        //     // plugin.getDataFolder() +
-        // }
-        // else if(args[0].equals("load")){
-        //     File dir = new File("plugins/DMTools");
-        //     File[] directoryListing = dir.listFiles();
-        //     if (directoryListing != null) {
-        //       for (File child : directoryListing) {
-        //           String fileIter = child.getAbsolutePath();
-        //           String tester = load(fileIter);
-        //         //   String tester = load("plugins/DMTools/" + fileName +".spell");
-        //         p.sendMessage(fileIter);
-        //         p.sendMessage(tester);
-        //       }
-        //     }
-            
-        // }
         if (args.length == 0){
-            Inventory inv = spellViewer();
+            Inventory inv = spellViewer(p);
             openInventory(p, inv);
         }
         else if (args.length == 1 && args[0].equals("new")){
@@ -105,10 +84,11 @@ public class Grimoire implements CommandExecutor,Listener {
     public void openInventory(final HumanEntity ent, Inventory inv) {
         ent.openInventory(inv);
     }
-    public Inventory spellViewer(){
+    public Inventory spellViewer(Player viewer){
+        //will need special code now to compare to player's personal spell list
         File dir = new File("plugins/DMTools");
         File[] directoryListing = dir.listFiles();
-        Inventory inv = Bukkit.createInventory(null, 18, "Spell library"); 
+        Inventory inv = Bukkit.createInventory(null, 18, "Spell Library"); 
         //do some math here and find the factor of 9, then do multiple pages, blah blah blah
         if (directoryListing != null) {
             Integer itercount = 0;
@@ -118,6 +98,10 @@ public class Grimoire implements CommandExecutor,Listener {
                 ItemStack referenceItem = new ItemStack(Material.valueOf(spellContents.get("item").toUpperCase()), 1);
                 ItemMeta referenceMeta= referenceItem.getItemMeta();
                 referenceMeta.setDisplayName(child.getName());
+                if(grimcallers.get(viewer).contains(child.getName())){
+                    referenceMeta.addEnchant(Enchantment.LURE, 1, true);
+                    referenceMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                }
                 referenceItem.setItemMeta(referenceMeta);
                 inv.setItem(itercount, referenceItem);
                 itercount++;
@@ -263,6 +247,46 @@ public class Grimoire implements CommandExecutor,Listener {
             if (badSlots.contains(e.getRawSlot()) && e.getView().getTitle().equals("Spell Editing")){
                 e.setCancelled(true);
             }
+            //code for selecting the thingy majiggy and saving it to file, because it's onclick I don't need to worry about save on inventory close
+            if(e.getView().getTitle().equals("Spell Library")){
+                if(e.getCurrentItem().getType() == Material.AIR || e.getCurrentItem() == null){
+                    //do nothing :)
+                }
+                else { 
+                    ItemStack enchantify = e.getCurrentItem();
+                    if (!grimcallers.get(e.getWhoClicked()).contains(enchantify.getItemMeta().getDisplayName())){
+                        Inventory quickAdd = e.getWhoClicked().getInventory();
+                        // quickAdd.addItem(enchantify);
+                        ItemMeta quickAddMeta = enchantify.getItemMeta();
+                        quickAddMeta.addEnchant(Enchantment.LURE, 1, true);
+                        quickAddMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                        enchantify.setItemMeta(quickAddMeta);
+                        quickAdd.setItem(e.getRawSlot(), enchantify);
+                        //now saving to the player's collection, which is just about to come into existence
+
+                        ArrayList<String> playerGrim = grimcallers.get(e.getWhoClicked());
+                        playerGrim.add(enchantify.getItemMeta().getDisplayName());
+                        grimcallers.put((Player) e.getWhoClicked(), playerGrim);
+                        save("plugins/DMTools/" + e.getWhoClicked().getName() +".grim", grimcallers.get((Player) e.getWhoClicked()));
+                        //will load instanced version on playerjoin,
+                        //big save command will go here
+                        // save(, grimcallers);
+
+                    }
+                    else if (grimcallers.get(e.getWhoClicked()).contains(enchantify.getItemMeta().getDisplayName())){
+                        Inventory quickAdd = e.getWhoClicked().getInventory();
+                        ItemMeta quickAddMeta = enchantify.getItemMeta();
+                        quickAddMeta.removeEnchant(Enchantment.LURE);
+                        enchantify.setItemMeta(quickAddMeta);
+                        quickAdd.setItem(e.getRawSlot(), enchantify);
+                        ArrayList<String> playerGrim = grimcallers.get(e.getWhoClicked());
+                        playerGrim.remove(enchantify.getItemMeta().getDisplayName());
+                        grimcallers.put((Player) e.getWhoClicked(), playerGrim);
+                        save("plugins/DMTools/" + e.getWhoClicked().getName() +".grim", grimcallers.get((Player) e.getWhoClicked()));
+                    }
+                }
+                e.setCancelled(true);
+            }
         }
 
     }
@@ -275,6 +299,23 @@ public class Grimoire implements CommandExecutor,Listener {
             e.setCancelled(true);
         }
     }
+    @EventHandler
+    public void onPlayerJoin(final PlayerJoinEvent e) {
+        //will need special code now to compare to player's personal spell list
+        File playerGrimoire = new File("plugins/DMTools/" + e.getPlayer().getName() + ".grim");
+        if (playerGrimoire.exists()){ 
+            ArrayList<String> memoryLoad = load("plugins/DMTools/" + e.getPlayer().getName() + ".grim");
+            grimcallers.put(e.getPlayer(), memoryLoad);
+        }
+    }
+    @EventHandler
+    public void onPlayerLeave(final PlayerQuitEvent e) {
+        //will need special code now to compare to player's personal spell list
+        if (grimcallers.containsKey(e.getPlayer())){ 
+            grimcallers.remove(e.getPlayer());
+        }
+    }
+    //need an onplayerleave function to unload the player information
     //code to save spell data to storage
     //inventory click, and possibly drag, don't really understand that one will be cancelled if it's certain slots
     public static <T extends Serializable> boolean save(String filePath, T object) {
@@ -298,9 +339,5 @@ public class Grimoire implements CommandExecutor,Listener {
             return null;
         }
     }
-    // Objects you are saving and loading must implement/extend Serializable or a Compilation Error will occur
-    // FlatFile.save(plugin.getDataFolder() + "/fileName.extension", objectToSave);
-    // You must ensure that the data stored in the file being loaded corresponds to the object being loaded back or a Runtime Error will occur
-    // objectToLoad = FlatFile.load(plugin.getDataFolder() + "/fileName.extension");
 }
 
