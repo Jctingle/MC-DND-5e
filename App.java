@@ -44,6 +44,10 @@ public class App extends JavaPlugin {
         Spellcomponent spellcomp = new Spellcomponent(this);
         this.getCommand("spellcomponent").setExecutor(spellcomp);
         getServer().getPluginManager().registerEvents(spellcomp, this); 
+
+        Spellcaster spellcast = new Spellcaster(this);
+        this.getCommand("spellcaster").setExecutor(spellcast);
+        getServer().getPluginManager().registerEvents(spellcast, this); 
     }
     @Override
     public void onDisable() {

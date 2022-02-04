@@ -65,6 +65,7 @@ public class Grimoire implements CommandExecutor,Listener {
         if (args.length == 0){
             Inventory inv = spellViewer(p);
             openInventory(p, inv);
+            playerView.put(p, inv);
         }
         else if (args.length == 1 && args[0].equals("new")){
             Inventory inv = spellConstructor();
@@ -94,17 +95,20 @@ public class Grimoire implements CommandExecutor,Listener {
             Integer itercount = 0;
             for (File child : directoryListing) {
                 String fileIter = child.getAbsolutePath();
-                HashMap<String, String> spellContents = load(fileIter);
-                ItemStack referenceItem = new ItemStack(Material.valueOf(spellContents.get("item").toUpperCase()), 1);
-                ItemMeta referenceMeta= referenceItem.getItemMeta();
-                referenceMeta.setDisplayName(child.getName());
-                if(grimcallers.get(viewer).contains(child.getName())){
-                    referenceMeta.addEnchant(Enchantment.LURE, 1, true);
-                    referenceMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                //this now imposes a problem
+                if (child.getName().endsWith(".spell")){
+                    HashMap<String, String> spellContents = load(fileIter);
+                    ItemStack referenceItem = new ItemStack(Material.valueOf(spellContents.get("item").toUpperCase()), 1);
+                    ItemMeta referenceMeta= referenceItem.getItemMeta();
+                    referenceMeta.setDisplayName(child.getName().replace(".spell", ""));
+                    if(grimcallers.get(viewer) != null && grimcallers.get(viewer).contains(child.getName().replace(".spell", ""))){
+                        referenceMeta.addEnchant(Enchantment.LURE, 1, true);
+                        referenceMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+                    }
+                    referenceItem.setItemMeta(referenceMeta);
+                    inv.setItem(itercount, referenceItem);
+                    itercount++;
                 }
-                referenceItem.setItemMeta(referenceMeta);
-                inv.setItem(itercount, referenceItem);
-                itercount++;
             }
         }
         //construct labels here
@@ -213,11 +217,11 @@ public class Grimoire implements CommandExecutor,Listener {
         //this will make sense
         if (e.getInventory() != playerView.get(e.getPlayer())) return;
         //logic to error catch cases where there are no items
-        else{
-            String fileName = e.getInventory().getItem(0).getItemMeta().getDisplayName();
-            ItemStack tokenSlot = e.getInventory().getItem(0);
-            ItemStack travelSlot = e.getInventory().getItem(1);
-            ItemStack onsiteSlot = e.getInventory().getItem(2);
+        else if (!e.getView().getTitle().equals("Spell Library")){
+            String fileName = e.getView().getItem(0).getItemMeta().getDisplayName();
+            ItemStack tokenSlot = e.getView().getItem(0);
+            ItemStack travelSlot = e.getView().getItem(1);
+            ItemStack onsiteSlot = e.getView().getItem(2);
             ItemMeta travelMeta = travelSlot.getItemMeta();
             ItemMeta onsiteMeta = onsiteSlot.getItemMeta();
             HashMap<String, String> spellStorage = new HashMap<>();
@@ -231,6 +235,9 @@ public class Grimoire implements CommandExecutor,Listener {
             spellStorage.put("persistant",onsiteMeta.getLore().get(3));
             save("plugins/DMTools/" + fileName +".spell", spellStorage);
             playerView.remove(e.getPlayer());
+            return;
+        }
+        else{
             return;
         }
     }
@@ -249,22 +256,25 @@ public class Grimoire implements CommandExecutor,Listener {
             }
             //code for selecting the thingy majiggy and saving it to file, because it's onclick I don't need to worry about save on inventory close
             if(e.getView().getTitle().equals("Spell Library")){
-                if(e.getCurrentItem().getType() == Material.AIR || e.getCurrentItem() == null){
+                if(e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR){
                     //do nothing :)
                 }
                 else { 
                     ItemStack enchantify = e.getCurrentItem();
-                    if (!grimcallers.get(e.getWhoClicked()).contains(enchantify.getItemMeta().getDisplayName())){
+                    if (!grimcallers.containsKey(e.getWhoClicked()) || !grimcallers.get(e.getWhoClicked()).contains(enchantify.getItemMeta().getDisplayName())){
                         Inventory quickAdd = e.getWhoClicked().getInventory();
                         // quickAdd.addItem(enchantify);
                         ItemMeta quickAddMeta = enchantify.getItemMeta();
                         quickAddMeta.addEnchant(Enchantment.LURE, 1, true);
                         quickAddMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
                         enchantify.setItemMeta(quickAddMeta);
-                        quickAdd.setItem(e.getRawSlot(), enchantify);
+                        // e.setCurrentItem(enchantify);
+                        e.getView().setItem(e.getRawSlot(),enchantify);
                         //now saving to the player's collection, which is just about to come into existence
-
-                        ArrayList<String> playerGrim = grimcallers.get(e.getWhoClicked());
+                        ArrayList<String> playerGrim = new ArrayList<String>();
+                        if (grimcallers.containsKey(e.getWhoClicked())){
+                            playerGrim = grimcallers.get(e.getWhoClicked());
+                        }
                         playerGrim.add(enchantify.getItemMeta().getDisplayName());
                         grimcallers.put((Player) e.getWhoClicked(), playerGrim);
                         save("plugins/DMTools/" + e.getWhoClicked().getName() +".grim", grimcallers.get((Player) e.getWhoClicked()));
@@ -278,7 +288,7 @@ public class Grimoire implements CommandExecutor,Listener {
                         ItemMeta quickAddMeta = enchantify.getItemMeta();
                         quickAddMeta.removeEnchant(Enchantment.LURE);
                         enchantify.setItemMeta(quickAddMeta);
-                        quickAdd.setItem(e.getRawSlot(), enchantify);
+                        e.getView().setItem(e.getRawSlot(), enchantify);
                         ArrayList<String> playerGrim = grimcallers.get(e.getWhoClicked());
                         playerGrim.remove(enchantify.getItemMeta().getDisplayName());
                         grimcallers.put((Player) e.getWhoClicked(), playerGrim);
