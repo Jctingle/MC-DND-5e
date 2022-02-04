@@ -86,7 +86,7 @@ public class Spellcaster implements CommandExecutor,Listener {
         ent.openInventory(inv);
     }
     //void method that will have components and multiple pathways/complex logic for particle programflow
-    public Void castSpell(Location origin, Location destination, Player caster, LivingEntity tokenOrigin){
+    public Void castSpell(Location start, Location end, Player caster, LivingEntity tokenOrigin){
         //9 cache variables? traveltype, travelparticle, onsiteeffect, onsiteshape
         //                   onsitesize, onsiteparticle, persistant
         //travel logic
@@ -102,28 +102,45 @@ public class Spellcaster implements CommandExecutor,Listener {
         //instant aka do nothing for travel
         //formula for intervals of travel particles will be distance*5? I think that makes the most sense
             case "cone":
+            //formula for triangle area of blocks in front if possible, not a lot of spaces, then do a 
             //will have no onsite
             //start at origin and expand to onsite-size while maintaining 5e Cone shape rules
+            //what if I just make this into like a series amount of lines depending on onsite size :[]
             break;
             case "beam":
             //line formula between origin and destination
+            //This is borrowed code from someone online in a spigot forum
+                Particle importParticle = Particle.valueOf((playerSpellData.get(caster).get("travelparticle")).toUpperCase());
+                double pointsPerLine = (start.distance(end));
+                double d = start.distance(end) / pointsPerLine;
+                for (int i = 0; i < pointsPerLine; i++) {
+                    Location l = start.clone();
+                    Vector direction = end.toVector().subtract(start.toVector()).normalize();
+                    Vector v = direction.multiply(i * d);
+                    l.add(v.getX(), v.getY(), v.getZ());
+                    start.getWorld().spawnParticle(importParticle, l, 1, 1, 1, 1, true);
+                }
+                //do-onSiteMethod
             break;
             case "ball":
             //origin - destination
             //make a generic ball function/formula that can be passed on series of points to make it look like it's moving 
             //or bind a runnable to poop particles on it every so often
             break;
-            case "projectile":
+            case "arrow":
             //might tweak this so it takes the item Icon and passes it at a dropped entity,
             // fired in a parabola with xyz vector motion using some trig to get the arch between points
             //you know make it unique and stuff
             Arrow arrow = tokenOrigin.launchProjectile(Arrow.class);
-            Vector velocity = destination.toVector().subtract(arrow.getLocation().toVector()).normalize();
+            Vector velocity = end.toVector().subtract(arrow.getLocation().toVector()).normalize();
             arrow.setVelocity(arrow.getVelocity().add(velocity));
+            //do-onSiteMethod
             break;
             case "instant":
             //will have no particle in travel
+            //do-onSiteMethod
             break;
+            //I want a case where it takes two different types and corkscrews it towards them
         }
         //then on-site logic it makes sense to parse one, and then parse the other, as it's almost two different things :)
         //explosion
@@ -132,6 +149,7 @@ public class Spellcaster implements CommandExecutor,Listener {
         //persistance logic for Sam to deal with 
         return null;
     }
+    //borrowed Code
     public Inventory spellChooser(Player viewer){
         // Grimoire grimoire = new Grimoire(app);
         //will need special code now to compare to player's personal spell list

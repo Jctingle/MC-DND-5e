@@ -254,7 +254,7 @@ public class Grimoire implements CommandExecutor,Listener {
             if (badSlots.contains(e.getRawSlot()) && e.getView().getTitle().equals("Spell Editing")){
                 e.setCancelled(true);
             }
-            //code for selecting the thingy majiggy and saving it to file, because it's onclick I don't need to worry about save on inventory close
+            //code for selecting the spells for personal grimoire and spell construction and saving it to file, because it's onclick I don't need to worry about save on inventory close
             if(e.getView().getTitle().equals("Spell Library")){
                 if(e.getCurrentItem() == null || e.getCurrentItem().getType() == Material.AIR){
                     //do nothing :)
