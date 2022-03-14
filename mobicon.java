@@ -72,7 +72,7 @@ public class Mobicon implements CommandExecutor,Listener,TabCompleter {
             else if (!tokenPlacer.contains(p)) {
                 tokenPlacer.add(p);
                 //need if's or situation proofers
-                //so it's /mobi <mobtype> <mobname> <health> <ac> <pc or not pc>
+                //so it's /mobi <mobtype> <mobname> <health> <ac> <pc or not pc  true:nothing>
                     p.sendMessage("Creating a Token for " + args[1] + " as a " + args[0]);
                     String mobType = args[0].toUpperCase();
                     String mobName = args[1];

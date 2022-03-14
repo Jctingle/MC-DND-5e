@@ -90,6 +90,7 @@ public class LaserPointer implements CommandExecutor,Listener {
             ItemStack pointerItem = matchItem();
             if(activeUsers.containsKey(e.getPlayer()) && e.getPlayer().getInventory().getItemInMainHand().getItemMeta().equals(pointerItem.getItemMeta())) {
                 Player p = (Player) e.getPlayer();
+                e.setCancelled(true);
                 DustOptions dustOptions = new DustOptions(activeUsers.get(p), 1.0F);
                 RayTraceResult rtx = p.getWorld().rayTraceBlocks(p.getEyeLocation(), p.getEyeLocation().getDirection(), 100);
                 if (rtx != null){
@@ -107,6 +108,7 @@ public class LaserPointer implements CommandExecutor,Listener {
         ItemStack pointerItem = matchItem();
         if(activeUsers.containsKey(e.getPlayer()) && e.getPlayer().getInventory().getItemInMainHand().getItemMeta().equals(pointerItem.getItemMeta())) {           
                 Player p = (Player) e.getPlayer();
+                e.setCancelled(true);
                 LivingEntity glower = (LivingEntity) e.getRightClicked();
                 PotionEffect targetGlow = new PotionEffect(PotionEffectType.GLOWING, 50, 1);
                 glower.addPotionEffect(targetGlow);

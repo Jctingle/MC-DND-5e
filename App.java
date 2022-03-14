@@ -48,6 +48,14 @@ public class App extends JavaPlugin {
         Spellcaster spellcast = new Spellcaster(this);
         this.getCommand("spellcaster").setExecutor(spellcast);
         getServer().getPluginManager().registerEvents(spellcast, this); 
+
+        Ruler ruler = new Ruler(this);
+        this.getCommand("ruler").setExecutor(ruler);
+        getServer().getPluginManager().registerEvents(ruler, this); 
+
+        CubeSummon cuber = new CubeSummon(this);
+        this.getCommand("cuber").setExecutor(cuber);
+        getServer().getPluginManager().registerEvents(cuber, this); 
     }
     @Override
     public void onDisable() {
