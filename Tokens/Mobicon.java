@@ -1,4 +1,4 @@
-package jeffersondev;
+package jeffersondev.Tokens;
 
 import java.util.ArrayList;
 import java.util.HashMap;

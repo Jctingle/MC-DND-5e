@@ -1,4 +1,4 @@
-package jeffersondev;
+package jeffersondev.Utilities;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -18,6 +18,8 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.RayTraceResult;
+
+import jeffersondev.App;
 
 
 

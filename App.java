@@ -4,6 +4,18 @@ import java.io.File;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
+
+import jeffersondev.SpellCasting.CubeSummon;
+import jeffersondev.SpellCasting.Grimoire;
+import jeffersondev.SpellCasting.Spellcaster;
+import jeffersondev.SpellCasting.Spellcomponent;
+import jeffersondev.Tokens.Equipmentmanager;
+import jeffersondev.Tokens.Interact;
+import jeffersondev.Tokens.Mobicon;
+import jeffersondev.Utilities.LaserPointer;
+import jeffersondev.Utilities.Ruler;
+import jeffersondev.Utilities.dmNotes;
+import jeffersondev.Utilities.initiative;
 public class App extends JavaPlugin {
     @Override
     public void onEnable() {

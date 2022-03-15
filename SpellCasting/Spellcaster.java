@@ -1,4 +1,4 @@
-package jeffersondev;
+package jeffersondev.SpellCasting;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -49,12 +49,13 @@ import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
 import org.bukkit.scheduler.BukkitRunnable;
 import jeffersondev.App;
+import jeffersondev.SpellCasting.Grimoire;
+
 import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
-import jeffersondev.Grimoire;
 public class Spellcaster implements CommandExecutor,Listener {
     // dispatchCommand(item.getmeta.getlore)
     private App app;

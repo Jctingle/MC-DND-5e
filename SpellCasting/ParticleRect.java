@@ -1,4 +1,4 @@
-package jeffersondev;
+package jeffersondev.SpellCasting;
 
 import org.bukkit.Effect;
 import org.bukkit.Location;

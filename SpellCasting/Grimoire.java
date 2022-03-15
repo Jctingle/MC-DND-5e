@@ -1,4 +1,4 @@
-package jeffersondev;
+package jeffersondev.SpellCasting;
 
 import java.io.File;
 import java.io.FileInputStream;
