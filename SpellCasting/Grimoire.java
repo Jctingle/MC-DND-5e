@@ -13,39 +13,23 @@ import java.util.zip.GZIPInputStream;
 import java.util.zip.GZIPOutputStream;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Particle;
-import org.bukkit.Particle.DustOptions;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.HumanEntity;
-import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryCloseEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Vector;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import org.bukkit.util.io.BukkitObjectOutputStream;
-import org.bukkit.scheduler.BukkitRunnable;
 import jeffersondev.App;
-import org.bukkit.inventory.EntityEquipment;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -173,13 +157,13 @@ public class Grimoire implements CommandExecutor,Listener {
         for(Integer i=12; i<18; i++){
             inv.setItem(i, unusedSlot);
         }
-        //^^^^^^^^^^^^^^^^^LABEL SLOT CODE^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LABEL SLOT CODE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         ItemStack referenceItem = new ItemStack(Material.valueOf(spellEdit.get("item").toUpperCase()), 1);
         ItemMeta referenceMeta= referenceItem.getItemMeta();
         referenceMeta.setDisplayName(fileName);
         referenceItem.setItemMeta(referenceMeta);
         inv.setItem(0, referenceItem);
-        //^^^^^^^^^^^^^^^^^^^^^^^Slot 1 Filler^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ Slot 1 Filler ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         String travelType = spellEdit.get("traveltype");
         String particle = spellEdit.get("travelparticle");
         //build fields from args for variable readability
@@ -192,7 +176,7 @@ public class Grimoire implements CommandExecutor,Listener {
         travelmeta.setLore(travelLore);
         travelToken.setItemMeta(travelmeta);
         inv.setItem(1, travelToken);
-        //^^^^^^^^^^^^^^^^^^^^^^^Slot 2 Filler^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ Slot 2 Filler ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         String onsiteType = spellEdit.get("onsiteeffect");
         String onsiteParticle = spellEdit.get("onsiteparticle");
         String onsiteShape = spellEdit.get("onsiteshape");
@@ -209,7 +193,7 @@ public class Grimoire implements CommandExecutor,Listener {
         onsitemeta.setLore(onsiteLore);
         onsiteToken.setItemMeta(onsitemeta);
         inv.setItem(2, onsiteToken);
-        //^^^^^^^^^^^^^^^^^^^^^^^Slot 3 Filler^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ Slot 3 Filler ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         return inv;
     }
     @EventHandler

@@ -1,14 +1,10 @@
 package jeffersondev.SpellCasting;
 
-import org.bukkit.Effect;
 import org.bukkit.Location;
 import org.bukkit.Particle;
-import org.bukkit.World;
 import org.bukkit.util.Vector;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
 
 /**
 * Created by Connor on 12/3/2016.
