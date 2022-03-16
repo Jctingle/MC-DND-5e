@@ -54,11 +54,13 @@ public class CubeSummon implements CommandExecutor,Listener {
                     if (rtx != null){
                         Double parameters = activeUsers.get(p);
                         Location pSpot = rtx.getHitPosition().toLocation(p.getWorld());
-                        pSpot.subtract(parameters/2, 0, parameters/2);
-                        ConcentrationSpell testCube = new ConcentrationSpell(pSpot, "flame", parameters);
-                        activefocus.put(p, testCube);
-                        testCube.runTaskTimer(app, 0, 40);
+                        // pSpot.subtract(parameters/2, 0, parameters/2);
+                        // ConcentrationSpell testCube = new ConcentrationSpell(pSpot, "flame", parameters);
+                        // activefocus.put(p, testCube);
+                        // testCube.runTaskTimer(app, 0, 40);
                         // testCube.draw("flame");
+                        ParticleSphere testSphere = new ParticleSphere(pSpot, "flame");
+                        testSphere.draw();
                         activeUsers.remove(p);
                     }
             } 

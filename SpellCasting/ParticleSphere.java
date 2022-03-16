@@ -18,16 +18,17 @@ public class ParticleSphere {
     public void draw(){
         Particle importParticle = Particle.valueOf(PARTICLE.toUpperCase());
         for (double i = 0; i <= Math.PI; i += Math.PI / 10) {
-            double radius = Math.sin(i);
-            double y = Math.cos(i);
+            //I will need a converter her to take Feet and represent them in game as 1/3 of a block
+            double radius = Math.sin(i) * 5.5;
+            double y = Math.cos(i) * 5.5;
             for (double a = 0; a < Math.PI * 2; a+= Math.PI / 10) {
-            double x = Math.cos(a) * radius;
-            double z = Math.sin(a) * radius;
-            ORIGIN.add(x, y, z);
-            // display particle at 'location'.
-            ORIGIN.getWorld().spawnParticle(importParticle, ORIGIN, 0, 0, 0, 0, 0.05);
+                double x = Math.cos(a) * radius;
+                double z = Math.sin(a) * radius;
+                ORIGIN.add(x, y, z);
+                // display particle at 'location'.
+                ORIGIN.getWorld().spawnParticle(importParticle, ORIGIN, 0, 0, 0, 0, 0.05);
 
-            ORIGIN.subtract(x, y, z);
+                ORIGIN.subtract(x, y, z);
             }
         }
     }

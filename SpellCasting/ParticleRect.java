@@ -37,14 +37,14 @@ public class ParticleRect {
         sides.add(new ParticlePoint(G,D));
     }
 
-    public Vector getPostion(double blocksAway,Vector origin, Vector direction) {
+    public Vector getPosition(double blocksAway,Vector origin, Vector direction) {
         return origin.clone().add(direction.clone().normalize().multiply(blocksAway));
     }
 
     public ArrayList<Vector> traverse(Vector origin, Vector direction) {
         ArrayList<Vector> positions = new ArrayList<>();
         for (double d = 0; d <= direction.length(); d += 0.1) {
-            positions.add(getPostion(d,origin,direction));
+            positions.add(getPosition(d,origin,direction));
         }
         return positions;
     }
