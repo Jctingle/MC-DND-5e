@@ -18,7 +18,8 @@ import jeffersondev.App;
 
 
 
-public class CubeSummon implements CommandExecutor,Listener {   
+public class CubeSummon implements CommandExecutor,Listener {  
+    //this code was always just a placeholder to help test the structure of shapes. 
     private App app;
     public CubeSummon(App app){
         this.app = app;
@@ -59,8 +60,9 @@ public class CubeSummon implements CommandExecutor,Listener {
                         // activefocus.put(p, testCube);
                         // testCube.runTaskTimer(app, 0, 40);
                         // testCube.draw("flame");
-                        ParticleSphere testSphere = new ParticleSphere(pSpot, "flame");
-                        testSphere.draw();
+                        // ParticleSphere testSphere = new ParticleSphere(pSpot, "flame");
+                        //call draw function with scalesize
+                        // testSphere.draw();
                         activeUsers.remove(p);
                     }
             } 

@@ -45,6 +45,7 @@ public class Spellcaster implements CommandExecutor,Listener {
     HashMap<Player, HashMap<String, String>> playerSpellData = new HashMap<>();
     Map<Player, Inventory> playerView = new HashMap<>();
     ArrayList<Player> spellCache = new ArrayList<>();
+    Map<Player, ConcentrationSpell> activeFocus = new HashMap<Player, ConcentrationSpell>();
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         // Grimoire grimoire = new Grimoire(app);
@@ -108,6 +109,7 @@ public class Spellcaster implements CommandExecutor,Listener {
                 WitherSkull wskull = tokenOrigin.launchProjectile(WitherSkull.class);
                 Vector skullvelocity = end.toVector().subtract(wskull.getLocation().toVector()).normalize();
                 wskull.setVelocity(wskull.getVelocity().add(skullvelocity));
+                //do onsite
             break;
             case "ball":
 
@@ -130,16 +132,74 @@ public class Spellcaster implements CommandExecutor,Listener {
         return null;
     }
     //borrowed Code
-    public void onSiteEffect(){
+    public void onSiteEffect(Location start, Location end, Player caster){
 
         //Special onsite LOCATION, can be calculated fast, only calculate special-special cuboid origin for certain effects.
+        String onsiteType = playerSpellData.get(caster).get("onsiteeffect");
+        String onsiteShape = playerSpellData.get(caster).get("onsiteshape");
+        Double onsiteSize = Double.parseDouble(playerSpellData.get(caster).get("onsitesize"));
+        String onsiteParticle = playerSpellData.get(caster).get("onsiteparticle");
+        String onsitePersist = playerSpellData.get(caster).get("persistant");
+        
 
+        //auto cancel any pre-existing concentration area, can tweak this if necessary;
+        //!!!!!!!!!!REMINDER TO MAKE A STOP ALL COMMAND!!!!!!!
         //instance variables called into existence here
+        if(onsiteType.equals("shape")){
+            switch(onsiteShape){
+            case "sphere":
+                if(onsitePersist.equals("true")){
+                    if(activeFocus.containsKey(caster)){
+                        activeFocus.get(caster).cancel();
+                    }
+                    Location pSpot = end;
+                    pSpot.subtract(onsiteSize/2, 0, onsiteSize/2);
+                    ConcentrationSpell concentrateSphere = new ConcentrationSpell(pSpot,onsiteParticle,onsiteSize, "sphere");
+                    activeFocus.put(caster, concentrateSphere);
+                    concentrateSphere.runTaskTimer(app, 0, 40);
+                }
+                else{
+                    Location pSpot = end;
+                    pSpot.subtract(onsiteSize/2, 0, onsiteSize/2);
+                    ParticleRect cube = new ParticleRect(pSpot, onsiteSize,onsiteSize,onsiteSize, onsiteParticle);
+                    cube.draw();
+                }
+                break;
+            case "cube":
+                if(onsitePersist.equals("true")){
+                    if(activeFocus.containsKey(caster)){
+                        activeFocus.get(caster).cancel();
+                    }
+                    Location pSpot = end;
+                    pSpot.subtract(onsiteSize/2, 0, onsiteSize/2);
+                    ConcentrationSpell concentrateCube = new ConcentrationSpell(pSpot,onsiteParticle,onsiteSize/3, "cube");
+                    activeFocus.put(caster, concentrateCube);
+                   concentrateCube.runTaskTimer(app, 0, 40);
+                }
+                else{
+                    Location pSpot = end;
+                    pSpot.subtract(onsiteSize/2, 0, onsiteSize/2);
+                    ParticleRect cube = new ParticleRect(pSpot, onsiteSize,onsiteSize,onsiteSize, onsiteParticle);
+                    cube.draw();
+                }
+                break;
+            case "cylinder":
+
+                break;
+            }
+        }
+        else if(onsiteType.equals("explosion")){
+        }
+        else if(onsiteType.equals("target")){
+        }
+        else { 
+        }
         //switch
         //explosion
         //shapefill This is gonna be hard for a couple of reasons
         //justTarget fun little flitter of particles over the target if it's a single target spell
         //none
+        
         return;
     }
     public Inventory spellChooser(Player viewer){

@@ -13,9 +13,10 @@ public class ParticleRect {
 
     ArrayList<ParticlePoint> sides = new ArrayList<ParticlePoint>();
     Location start;
-
-    ParticleRect(Location start, double width, double length,double height){
+    Particle importParticle;
+    ParticleRect(Location start, double width, double length,double height, String particleString){
         this.start = start;
+        this.importParticle = Particle.valueOf(particleString.toUpperCase());
         Vector A = new Vector(0,0,0);
         Vector B = new Vector(length,0,0);
         Vector C = new Vector(0,0,width);
@@ -49,11 +50,11 @@ public class ParticleRect {
         return positions;
     }
 
-    public void draw(String particleString){
+    public void draw(){
             for(ParticlePoint point : sides){
             for(Vector position : traverse(point.origin,point.direction)){
                 position = start.toVector().clone().add(position);
-                Particle importParticle = Particle.valueOf(particleString.toUpperCase());
+
                 // p.getWorld().spawnParticle(Particle.REDSTONE, pSpot, 1, dustOptions);
                 // start.getWorld().playEffect(position.toLocation(start.getWorld()), Effect.ELECTRIC_SPARK, 0);
                 start.getWorld().spawnParticle(importParticle, position.toLocation(start.getWorld()), 0, 0, 0, 0, 0.05);

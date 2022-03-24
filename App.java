@@ -5,7 +5,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import jeffersondev.SpellCasting.CubeSummon;
 import jeffersondev.SpellCasting.Grimoire;
 import jeffersondev.SpellCasting.Spellcaster;
 import jeffersondev.SpellCasting.Spellcomponent;
@@ -65,9 +64,6 @@ public class App extends JavaPlugin {
         this.getCommand("ruler").setExecutor(ruler);
         getServer().getPluginManager().registerEvents(ruler, this); 
 
-        CubeSummon cuber = new CubeSummon(this);
-        this.getCommand("cuber").setExecutor(cuber);
-        getServer().getPluginManager().registerEvents(cuber, this); 
     }
     @Override
     public void onDisable() {
