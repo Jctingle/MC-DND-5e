@@ -197,6 +197,7 @@ public class Spellcaster implements CommandExecutor,Listener {
                 }
                 else{
                     Location pSpot = end;
+                    //THIS WILL NEED AN UPDATE ONCE HEIGHT IS TACKED ON
                     ParticleCyl cyl = new ParticleCyl(pSpot, onsiteParticle, onsiteSize, 5.0);
                     cyl.draw();
                 }

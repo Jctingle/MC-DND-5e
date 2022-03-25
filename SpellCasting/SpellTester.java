@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -13,7 +14,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
 
 import jeffersondev.App;
 
@@ -34,8 +38,9 @@ public class SpellTester implements CommandExecutor,Listener {
             ArrayList<Double> mapAdd = new ArrayList<Double>();
             //args0 is radius, args1 is height
             mapAdd.add(Double.parseDouble(args[0]));
-            mapAdd.add(Double.parseDouble(args[1]));
             activeUsers.put(p, mapAdd);
+            ItemStack ruler = matchItem();
+            p.getInventory().addItem(ruler);
             return true;
         }
         else{
@@ -43,22 +48,30 @@ public class SpellTester implements CommandExecutor,Listener {
             return false;
             }
     }
+    public ItemStack matchItem(){
+        ItemStack pointerItem = new ItemStack(Material.BLAZE_ROD);
+        ItemMeta pointerMeta = pointerItem.getItemMeta();
+        pointerMeta.setDisplayName("Test_Wand");
+        pointerItem.setItemMeta(pointerMeta); 
 
+        return pointerItem;
+    }
     @EventHandler
     public void onRightClick(PlayerInteractEvent e) {
-        if(activeUsers.containsKey(e.getPlayer())){
+        ItemStack wando = matchItem();
+        if(activeUsers.containsKey(e.getPlayer()) && e.getPlayer().getInventory().getItemInMainHand().equals(wando)){
             if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
                     Player p = (Player) e.getPlayer();
                     e.setCancelled(true);
-                    RayTraceResult rtx = p.getWorld().rayTraceBlocks(p.getEyeLocation(), p.getEyeLocation().getDirection(), 100);
-                    if (rtx != null){
                         Double parameters = activeUsers.get(p).get(0);
-                        Double heightParam = activeUsers.get(p).get(1);
-                        Location pSpot = rtx.getHitPosition().toLocation(p.getWorld());
-                        ParticleCyl testCyl = new ParticleCyl(pSpot,"flame",parameters, heightParam);
-                        testCyl.draw();
+                        Location pSpot = p.getEyeLocation().add(p.getEyeLocation().getDirection().multiply(5));
+                        ParticleCone testCone = new ParticleCone(pSpot, "flame", p.getEyeLocation().getDirection(), parameters);
+                        Vector circleVector = p.getEyeLocation().toVector().subtract(pSpot.toVector());
+                        testCone.draw();
                         activeUsers.remove(p);
-                    }
+                        p.getInventory().removeItem(wando);
+
+
             } 
         }
     }
