@@ -140,6 +140,8 @@ public class Spellcaster implements CommandExecutor,Listener {
         Double onsiteSize = Double.parseDouble(playerSpellData.get(caster).get("onsitesize"));
         String onsiteParticle = playerSpellData.get(caster).get("onsiteparticle");
         String onsitePersist = playerSpellData.get(caster).get("persistant");
+        // String onsiteHeight = playerSpellData.get(caster).get("onsiteheight");
+
         
 
         //auto cancel any pre-existing concentration area, can tweak this if necessary;
@@ -184,7 +186,20 @@ public class Spellcaster implements CommandExecutor,Listener {
                 }
                 break;
             case "cylinder":
-
+                if(onsitePersist.equals("true")){
+                    if(activeFocus.containsKey(caster)){
+                        activeFocus.get(caster).cancel();
+                    }
+                    Location pSpot = end;
+                    ConcentrationSpell concentrateCyl = new ConcentrationSpell(pSpot,onsiteParticle,onsiteSize/3, "cylinder", 5.0);
+                    activeFocus.put(caster, concentrateCyl);
+                   concentrateCyl.runTaskTimer(app, 0, 40);
+                }
+                else{
+                    Location pSpot = end;
+                    ParticleCyl cyl = new ParticleCyl(pSpot, onsiteParticle, onsiteSize, 5.0);
+                    cyl.draw();
+                }
                 break;
             }
         }

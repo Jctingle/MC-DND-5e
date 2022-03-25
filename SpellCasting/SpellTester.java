@@ -1,5 +1,6 @@
 package jeffersondev.SpellCasting;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -18,25 +19,23 @@ import jeffersondev.App;
 
 
 
-public class CubeSummon implements CommandExecutor,Listener {  
+public class SpellTester implements CommandExecutor,Listener {  
     //this code was always just a placeholder to help test the structure of shapes. 
     private App app;
-    public CubeSummon(App app){
+    public SpellTester(App app){
         this.app = app;
     }
-    Map<Player, Double> activeUsers = new HashMap<Player, Double>();
-    Map<Player, ConcentrationSpell> activefocus = new HashMap<Player, ConcentrationSpell>();
+    Map<Player, ArrayList<Double>> activeUsers = new HashMap<Player, ArrayList<Double>>();
+    // Map<Player, ConcentrationSpell> activefocus = new HashMap<Player, ConcentrationSpell>();
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         if(sender instanceof Player){
             Player p = ((Player) sender);
-            if (args[0].equals("stop")){
-                activefocus.get(p).cancel();
-                activefocus.remove(p);
-            }
-            else{
-                activeUsers.put(p, Double.parseDouble(args[0]));
-            }
+            ArrayList<Double> mapAdd = new ArrayList<Double>();
+            //args0 is radius, args1 is height
+            mapAdd.add(Double.parseDouble(args[0]));
+            mapAdd.add(Double.parseDouble(args[1]));
+            activeUsers.put(p, mapAdd);
             return true;
         }
         else{
@@ -53,16 +52,11 @@ public class CubeSummon implements CommandExecutor,Listener {
                     e.setCancelled(true);
                     RayTraceResult rtx = p.getWorld().rayTraceBlocks(p.getEyeLocation(), p.getEyeLocation().getDirection(), 100);
                     if (rtx != null){
-                        Double parameters = activeUsers.get(p);
+                        Double parameters = activeUsers.get(p).get(0);
+                        Double heightParam = activeUsers.get(p).get(1);
                         Location pSpot = rtx.getHitPosition().toLocation(p.getWorld());
-                        // pSpot.subtract(parameters/2, 0, parameters/2);
-                        // ConcentrationSpell testCube = new ConcentrationSpell(pSpot, "flame", parameters);
-                        // activefocus.put(p, testCube);
-                        // testCube.runTaskTimer(app, 0, 40);
-                        // testCube.draw("flame");
-                        // ParticleSphere testSphere = new ParticleSphere(pSpot, "flame");
-                        //call draw function with scalesize
-                        // testSphere.draw();
+                        ParticleCyl testCyl = new ParticleCyl(pSpot,"flame",parameters, heightParam);
+                        testCyl.draw();
                         activeUsers.remove(p);
                     }
             } 
