@@ -64,9 +64,7 @@ public class SpellTester implements CommandExecutor,Listener {
                     Player p = (Player) e.getPlayer();
                     e.setCancelled(true);
                         Double parameters = activeUsers.get(p).get(0);
-                        Location pSpot = p.getEyeLocation().add(p.getEyeLocation().getDirection().multiply(5));
-                        ParticleCone testCone = new ParticleCone(pSpot, "flame", p.getEyeLocation().getDirection(), parameters);
-                        Vector circleVector = p.getEyeLocation().toVector().subtract(pSpot.toVector());
+                        ParticleCone testCone = new ParticleCone(p.getEyeLocation(), "flame", p.getEyeLocation().getDirection(), parameters);
                         testCone.draw();
                         activeUsers.remove(p);
                         p.getInventory().removeItem(wando);

@@ -98,7 +98,7 @@ public class Spellcaster implements CommandExecutor,Listener {
                     Vector direction = end.toVector().subtract(start.toVector()).normalize();
                     Vector v = direction.multiply(i * d);
                     l.add(v.getX(), v.getY(), v.getZ());
-                    start.getWorld().spawnParticle(importParticle, l, 1);
+                    start.getWorld().spawnParticle(importParticle, l, 0, 0, 0, 0, 0.05);
                     //for secondary travel particle, put other one here
                 }
                 //do-onSiteMethod
@@ -280,7 +280,7 @@ public class Spellcaster implements CommandExecutor,Listener {
                 RayTraceResult rtx = p.getWorld().rayTraceBlocks(p.getEyeLocation(), p.getEyeLocation().getDirection(), 100);
                 if (rtx != null){
                     Location pEnd = rtx.getHitPosition().toLocation(p.getWorld());
-                    Location pStart = p.getLocation();
+                    Location pStart = p.getEyeLocation();
                     //castspell
                     castSpell(pStart, pEnd, e.getPlayer(), e.getPlayer());
                     
