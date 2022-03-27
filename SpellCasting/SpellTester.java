@@ -68,8 +68,6 @@ public class SpellTester implements CommandExecutor,Listener {
                         testCone.draw();
                         activeUsers.remove(p);
                         p.getInventory().removeItem(wando);
-
-
             } 
         }
     }

@@ -58,7 +58,7 @@ public class App extends JavaPlugin {
         getServer().getPluginManager().registerEvents(spellcomp, this); 
 
         Spellcaster spellcast = new Spellcaster(this);
-        this.getCommand("spellcaster").setExecutor(spellcast);
+        this.getCommand("spellbook").setExecutor(spellcast);
         getServer().getPluginManager().registerEvents(spellcast, this); 
 
         Ruler ruler = new Ruler(this);

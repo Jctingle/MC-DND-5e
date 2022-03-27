@@ -2,7 +2,6 @@ package jeffersondev.SpellCasting;
 
 import java.util.ArrayList;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.util.Vector;
@@ -41,6 +40,6 @@ public class ParticleCone {
             for(Vector point : points){
                 ORIGIN.getWorld().spawnParticle(importParticle, point.toLocation(ORIGIN.getWorld()), 0, 0, 0, 0, 0.05);
             }
-    }
+        }
     }
 }

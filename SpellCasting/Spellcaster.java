@@ -18,6 +18,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Arrow;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
@@ -26,6 +27,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
+import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
@@ -44,14 +46,19 @@ public class Spellcaster implements CommandExecutor,Listener {
     }
     HashMap<Player, HashMap<String, String>> playerSpellData = new HashMap<>();
     Map<Player, Inventory> playerView = new HashMap<>();
+    Map<Player, LivingEntity> playerToken = new HashMap<>();
     ArrayList<Player> spellCache = new ArrayList<>();
     Map<Player, ConcentrationSpell> activeFocus = new HashMap<Player, ConcentrationSpell>();
+    Map<Player, Location> tokenPerspective = new HashMap<>();
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         // Grimoire grimoire = new Grimoire(app);
         Player p = (Player) sender;
         File playerGrimoire = new File("plugins/DMTools/" + p.getName() + ".grim");
         //add new option here for cuboid call, give option to right click one spot and another? Additional class tbh
+        if (args.length > 0 && args[0].equals("stopall")){
+            stopAllSpells();
+        }
         if (playerGrimoire.exists()){ 
             spellCache.add(p);
         }
@@ -66,6 +73,12 @@ public class Spellcaster implements CommandExecutor,Listener {
             p.sendMessage("Sorry! You do not currently have any spells known, please browse the catalogue");
         }
         return true;
+    }
+    public void stopAllSpells(){
+        for(ConcentrationSpell cSpell : activeFocus.values()){
+            cSpell.cancel();
+        }
+        activeFocus.clear();
     }
     public void openInventory(final HumanEntity ent, Inventory inv) {
         ent.openInventory(inv);
@@ -82,10 +95,26 @@ public class Spellcaster implements CommandExecutor,Listener {
             //then canceled upon end of animation/onhit
         //formula for intervals of travel particles will be distance*5? I think that makes the most sense
             case "cone":
-            //formula for triangle area of blocks in front if possible, not a lot of spaces, then do a 
-            //will have no onsite
-            //start at origin and expand to onsite-size while maintaining 5e Cone shape rules
-            //what if I just make this into like a series amount of lines depending on onsite size :[]
+                //somehow lock player to token perspective and blast
+                if(tokenPerspective.containsKey(caster)){
+                    String coneParticle = (playerSpellData.get(caster).get("travelparticle")).toUpperCase();
+                    Double parameters = Double.parseDouble(playerSpellData.get(caster).get("onsitesize"));
+                    ParticleCone testCone = new ParticleCone(caster.getEyeLocation(), coneParticle, caster.getEyeLocation().getDirection(), parameters);
+                    tokenOrigin.teleport(caster.getLocation());
+                    caster.teleport(tokenPerspective.get(caster));
+                    caster.setWalkSpeed(.2f);
+                    caster.setFlySpeed(.1f);
+                    tokenPerspective.remove(caster);
+                    testCone.draw();
+                }
+                else if(!tokenPerspective.containsKey(caster) || !tokenOrigin.getType().equals(EntityType.PLAYER)){
+                    tokenPerspective.put(caster, caster.getLocation());
+                    caster.teleport(tokenOrigin.getLocation());
+                    caster.setWalkSpeed(.0001f);
+                    caster.setFlySpeed(.00001f);
+                    tokenOrigin.teleport(tokenPerspective.get(caster));
+                }
+                //donoonsite
             break;
             case "beam":
             //line formula between origin and destination
@@ -124,6 +153,8 @@ public class Spellcaster implements CommandExecutor,Listener {
             case "instant":
             //will have no particle in travel
             //do-onSiteMethod
+            break;
+            case "lightning":
             break;
             //I want a case where it takes two different types and corkscrews it towards them
         }
@@ -254,14 +285,7 @@ public class Spellcaster implements CommandExecutor,Listener {
         }
                 e.setCancelled(true);
                 playerSpellData.put((Player) e.getWhoClicked(), (HashMap<String, String>) load("plugins/DMTools/" + e.getCurrentItem().getItemMeta().getDisplayName() + ".spell"));
-                ItemStack SpellBook = new ItemStack(Material.ENCHANTED_BOOK, 1);
-                ItemMeta SpellBookMeta = SpellBook.getItemMeta();
-                SpellBookMeta.setDisplayName("Grimoire");
-                // ArrayList<String> loreArray = new ArrayList();
-                // loreArray.add((String) playerSpellData.get(e.getWhoClicked()).get(e.getCurrentItem().getItemMeta().getDisplayName()));
-                // SpellBookMeta.setLore(loreArray);
-                SpellBook.setItemMeta(SpellBookMeta);
-                //check inventory for existing spell focus, if nothing then proceed, if existing then swap out.
+                ItemStack SpellBook = matchItem();
                 e.getWhoClicked().getInventory().addItem(SpellBook);
                 playerView.remove(e.getWhoClicked());
                 e.getView().close();
@@ -272,35 +296,77 @@ public class Spellcaster implements CommandExecutor,Listener {
     @EventHandler
     public void onRightClick(PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
+            ItemStack SpellBook = matchItem();
             if(e.getPlayer().getInventory().getItemInMainHand() == (null) || e.getPlayer().getInventory().getItemInMainHand().getItemMeta() == null){
                 return;
             }
-            else if(playerSpellData.containsKey(e.getPlayer()) && e.getPlayer().getInventory().getItemInMainHand().getItemMeta().getDisplayName().equals("Grimoire")) {
-                Player p = (Player) e.getPlayer();
-                RayTraceResult rtx = p.getWorld().rayTraceBlocks(p.getEyeLocation(), p.getEyeLocation().getDirection(), 100);
-                if (rtx != null){
-                    Location pEnd = rtx.getHitPosition().toLocation(p.getWorld());
-                    Location pStart = p.getEyeLocation();
-                    //castspell
-                    castSpell(pStart, pEnd, e.getPlayer(), e.getPlayer());
-                    
+            else{
+                //if item in their main hand is spellbook
+                if(e.getPlayer().getInventory().getItemInMainHand().equals(SpellBook)){
+                    //if they have a reference token and a spell Queued
+                    if(playerSpellData.containsKey(e.getPlayer()) && playerToken.containsKey(e.getPlayer())) {
+                        Player p = (Player) e.getPlayer();
+                        if(tokenPerspective.containsKey(p)){
+                            castSpell(playerToken.get(p).getLocation().add(0,1,0), p.getLocation(), e.getPlayer(), playerToken.get(p)); 
+                        }
+                        else{
+                            RayTraceResult rtx = p.getWorld().rayTraceBlocks(p.getEyeLocation(), p.getEyeLocation().getDirection(), 100);
+                            if (rtx != null){
+                                Location pEnd = rtx.getHitPosition().toLocation(p.getWorld());
+                                castSpell(playerToken.get(p).getLocation().add(0,1,0), pEnd, e.getPlayer(), playerToken.get(p));                 
+                            }
+                        }
                     }
-                else{
+                    //no token but still a spell queued
+                    else if(playerSpellData.containsKey(e.getPlayer())) {
+                        Player p = (Player) e.getPlayer();
+                        RayTraceResult rtx = p.getWorld().rayTraceBlocks(p.getEyeLocation(), p.getEyeLocation().getDirection(), 100);
+                        if (rtx != null){
+                            Location pEnd = rtx.getHitPosition().toLocation(p.getWorld());
+                            Location pStart = p.getEyeLocation();
+                            //castspell
+                            castSpell(pStart, pEnd, e.getPlayer(), e.getPlayer());                 
+                            }
+                    }
+                    else{
+                        e.getPlayer().sendMessage("Please select a spell from your spellbook");
+                    }
                 }
             }
+            
         }   
     }
-    //handel if the player right clicks an entity or shift right clicks
-    // @EventHandler
-    // public void onRightClick(PlayerInteractEntityEvent e) {
-    //     ItemStack pointerItem = matchItem();
-    //     if(activeUsers.containsKey(e.getPlayer()) && e.getPlayer().getInventory().getItemInMainHand().getItemMeta().equals(pointerItem.getItemMeta())) {           
-    //             Player p = (Player) e.getPlayer();
-    //             LivingEntity glower = (LivingEntity) e.getRightClicked();
-    //             PotionEffect targetGlow = new PotionEffect(PotionEffectType.GLOWING, 50, 1);
-    //             glower.addPotionEffect(targetGlow);
-    //         }  
-    // }
+    // handel if the player right clicks an entity or shift right clicks
+    public ItemStack matchItem(){
+        ItemStack pointerItem = new ItemStack(Material.ENCHANTED_BOOK);
+        ItemMeta pointerMeta = pointerItem.getItemMeta();
+        pointerMeta.setDisplayName("Grimoire");
+        pointerItem.setItemMeta(pointerMeta); 
+
+        return pointerItem;
+    }
+    @EventHandler
+    public void onRightClick(PlayerInteractEntityEvent e) {
+        ItemStack SpellBook = matchItem();
+        if(e.getPlayer().getInventory().getItemInMainHand() == (null) || e.getPlayer().getInventory().getItemInMainHand().getItemMeta() == null){
+            return;
+        }
+        else if(playerSpellData.containsKey(e.getPlayer()) && e.getPlayer().getInventory().getItemInMainHand().equals(SpellBook)) {
+            if(!playerToken.containsKey(e.getPlayer()) && e.getPlayer().isSneaking() && e.getRightClicked().getScoreboardTags().contains("token")){
+                LivingEntity spellSource = (LivingEntity) e.getRightClicked();
+                playerToken.put(e.getPlayer(), spellSource);
+            }else if(playerToken.containsKey(e.getPlayer())){
+                Player p = (Player) e.getPlayer();
+                Location targetCenter = e.getRightClicked().getLocation().add(0,1,0);
+                castSpell(p.getEyeLocation(), targetCenter, e.getPlayer(), playerToken.get(p));
+            }
+            else{
+                Player p = (Player) e.getPlayer();
+                Location targetCenter = e.getRightClicked().getLocation().add(0,1,0);
+                castSpell(p.getEyeLocation(), targetCenter, e.getPlayer(), e.getPlayer());
+            }
+        }
+    }
     public static <T extends Serializable> T load(String filePath){
         try {
             BukkitObjectInputStream in = new BukkitObjectInputStream(new GZIPInputStream(new FileInputStream(filePath)));
