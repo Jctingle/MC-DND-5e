@@ -166,6 +166,7 @@ public class Grimoire implements CommandExecutor,Listener {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ Slot 1 Filler ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         String travelType = spellEdit.get("traveltype");
         String particle = spellEdit.get("travelparticle");
+        String travelSize = spellEdit.get("travelsize");
         //travelsize go here
         //build fields from args for variable readability
         ItemStack travelToken = new ItemStack(Material.PRISMARINE_SHARD, 1);
@@ -174,6 +175,7 @@ public class Grimoire implements CommandExecutor,Listener {
         //build the lore components
         ArrayList<String> travelLore = new ArrayList<String>();
         travelLore.add(particle);
+        travelLore.add(travelSize);
         travelmeta.setLore(travelLore);
         travelToken.setItemMeta(travelmeta);
         inv.setItem(1, travelToken);
@@ -182,14 +184,16 @@ public class Grimoire implements CommandExecutor,Listener {
         String onsiteParticle = spellEdit.get("onsiteparticle");
         String onsiteShape = spellEdit.get("onsiteshape");
         String onsiteSize = spellEdit.get("onsitesize");
+        String onsiteHeight = spellEdit.get("onsiteheight");
         String onsitePersist = spellEdit.get("persistant");              
         ItemStack onsiteToken = new ItemStack(Material.PRISMARINE_SHARD, 1);
         ItemMeta onsitemeta = onsiteToken.getItemMeta();
         onsitemeta.setDisplayName(onsiteType);
         ArrayList<String> onsiteLore = new ArrayList<String>();
-        onsiteLore.add(onsiteParticle);
         onsiteLore.add(onsiteShape);
+        onsiteLore.add(onsiteParticle);
         onsiteLore.add(onsiteSize);
+        onsiteLore.add(onsiteHeight);
         onsiteLore.add(onsitePersist);
         onsitemeta.setLore(onsiteLore);
         onsiteToken.setItemMeta(onsitemeta);
@@ -213,12 +217,14 @@ public class Grimoire implements CommandExecutor,Listener {
             spellStorage.put("item",tokenSlot.getType().toString());
             spellStorage.put("traveltype",travelMeta.getDisplayName());
             spellStorage.put("travelparticle",travelMeta.getLore().get(0));
+            spellStorage.put("travelsize",travelMeta.getLore().get(1));
             //travelsize go here
             spellStorage.put("onsiteeffect",onsiteMeta.getDisplayName());
             spellStorage.put("onsiteshape",onsiteMeta.getLore().get(0));
             spellStorage.put("onsitesize",onsiteMeta.getLore().get(1));
-            spellStorage.put("onsiteparticle",onsiteMeta.getLore().get(2));
-            spellStorage.put("persistant",onsiteMeta.getLore().get(3));
+            spellStorage.put("onsiteheight",onsiteMeta.getLore().get(2));
+            spellStorage.put("onsiteparticle",onsiteMeta.getLore().get(3));
+            spellStorage.put("persistant",onsiteMeta.getLore().get(4));
             save("plugins/DMTools/" + fileName +".spell", spellStorage);
             playerView.remove(e.getPlayer());
             return;

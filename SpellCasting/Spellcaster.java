@@ -89,14 +89,14 @@ public class Spellcaster implements CommandExecutor,Listener {
         //                   onsitesize, onsiteparticle, persistant
         //travel logic
         String travelType = playerSpellData.get(caster).get("traveltype");
+        Double travelSize = Double.parseDouble(playerSpellData.get(caster).get("travelsize"));
         switch(travelType){
             case "cone":
                 //somehow lock player to token perspective and blast
                 if(tokenPerspective.containsKey(caster)){
                     String coneParticle = (playerSpellData.get(caster).get("travelparticle")).toUpperCase();
                     //some kind of check for colourized particles as well as error inducing particles
-                    Double parameters = Double.parseDouble(playerSpellData.get(caster).get("onsitesize"));
-                    ParticleCone testCone = new ParticleCone(caster.getEyeLocation(), coneParticle, caster.getEyeLocation().getDirection(), parameters);
+                    ParticleCone testCone = new ParticleCone(caster.getEyeLocation(), coneParticle, caster.getEyeLocation().getDirection(), travelSize);
                     tokenOrigin.teleport(caster.getLocation());
                     caster.teleport(tokenPerspective.get(caster));
                     caster.setWalkSpeed(.2f);
@@ -175,7 +175,7 @@ public class Spellcaster implements CommandExecutor,Listener {
         Double onsiteSize = Double.parseDouble(playerSpellData.get(caster).get("onsitesize"));
         String onsiteParticle = playerSpellData.get(caster).get("onsiteparticle");
         String onsitePersist = playerSpellData.get(caster).get("persistant");
-        // String onsiteHeight = playerSpellData.get(caster).get("onsiteheight");
+        Double onsiteHeight = Double.parseDouble(playerSpellData.get(caster).get("onsiteheight"));
 
         
 
@@ -226,14 +226,14 @@ public class Spellcaster implements CommandExecutor,Listener {
                         activeFocus.get(caster).cancel();
                     }
                     Location pSpot = end;
-                    ConcentrationSpell concentrateCyl = new ConcentrationSpell(pSpot,onsiteParticle,onsiteSize/3, "cylinder", 5.0);
+                    ConcentrationSpell concentrateCyl = new ConcentrationSpell(pSpot,onsiteParticle,onsiteSize/3, "cylinder", onsiteHeight);
                     activeFocus.put(caster, concentrateCyl);
                    concentrateCyl.runTaskTimer(app, 0, 40);
                 }
                 else{
                     Location pSpot = end;
                     //THIS WILL NEED AN UPDATE ONCE HEIGHT IS TACKED ON
-                    ParticleCyl cyl = new ParticleCyl(pSpot, onsiteParticle, onsiteSize, 5.0);
+                    ParticleCyl cyl = new ParticleCyl(pSpot, onsiteParticle, onsiteSize, onsiteHeight);
                     cyl.draw();
                 }
                 break;
@@ -245,12 +245,6 @@ public class Spellcaster implements CommandExecutor,Listener {
         }
         else { 
         }
-        //switch
-        //explosion
-        //shapefill This is gonna be hard for a couple of reasons
-        //justTarget fun little flitter of particles over the target if it's a single target spell
-        //none
-        
         return;
     }
     public Inventory spellChooser(Player viewer){
