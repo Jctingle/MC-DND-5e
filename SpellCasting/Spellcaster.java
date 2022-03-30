@@ -59,7 +59,7 @@ public class Spellcaster implements CommandExecutor,Listener {
         if (args.length > 0 && args[0].equals("stopall")){
             stopAllSpells();
         }
-        if (playerGrimoire.exists()){ 
+        else if (playerGrimoire.exists()){ 
             spellCache.add(p);
         }
         if(spellCache.contains(p)){
@@ -90,14 +90,11 @@ public class Spellcaster implements CommandExecutor,Listener {
         //travel logic
         String travelType = playerSpellData.get(caster).get("traveltype");
         switch(travelType){
-            //travel motion thoughts: runnable that tracks an invisible arrow moving slower? 
-            //or some kind of controllable flying particle with it's location pinged with particles every x ticks
-            //then canceled upon end of animation/onhit
-        //formula for intervals of travel particles will be distance*5? I think that makes the most sense
             case "cone":
                 //somehow lock player to token perspective and blast
                 if(tokenPerspective.containsKey(caster)){
                     String coneParticle = (playerSpellData.get(caster).get("travelparticle")).toUpperCase();
+                    //some kind of check for colourized particles as well as error inducing particles
                     Double parameters = Double.parseDouble(playerSpellData.get(caster).get("onsitesize"));
                     ParticleCone testCone = new ParticleCone(caster.getEyeLocation(), coneParticle, caster.getEyeLocation().getDirection(), parameters);
                     tokenOrigin.teleport(caster.getLocation());
@@ -114,7 +111,9 @@ public class Spellcaster implements CommandExecutor,Listener {
                     caster.setFlySpeed(.00001f);
                     tokenOrigin.teleport(tokenPerspective.get(caster));
                 }
-                //donoonsite
+                else{
+                    caster.sendMessage("Sorry, please select a spell origin token for Cone type spells");
+                }
             break;
             case "beam":
             //line formula between origin and destination
@@ -130,6 +129,7 @@ public class Spellcaster implements CommandExecutor,Listener {
                     start.getWorld().spawnParticle(importParticle, l, 0, 0, 0, 0, 0.05);
                     //for secondary travel particle, put other one here
                 }
+                onSiteEffect(start,end,caster);
                 //do-onSiteMethod
             break;
             case "skull":
@@ -138,23 +138,27 @@ public class Spellcaster implements CommandExecutor,Listener {
                 WitherSkull wskull = tokenOrigin.launchProjectile(WitherSkull.class);
                 Vector skullvelocity = end.toVector().subtract(wskull.getLocation().toVector()).normalize();
                 wskull.setVelocity(wskull.getVelocity().add(skullvelocity));
+                onSiteEffect(start,end,caster);
                 //do onsite
             break;
             case "ball":
-
+                onSiteEffect(start,end,caster);
             break;
             //expand arrow case/duplicate and make spectral arrow, or other visible travel arrow varieties
             case "arrow":
                 Arrow arrow = tokenOrigin.launchProjectile(Arrow.class);
                 Vector velocity = end.toVector().subtract(arrow.getLocation().toVector()).normalize();
                 arrow.setVelocity(arrow.getVelocity().add(velocity));
+                onSiteEffect(start,end,caster);
             //do-onSiteMethod
             break;
             case "instant":
             //will have no particle in travel
             //do-onSiteMethod
+                onSiteEffect(start,end,caster);
             break;
             case "lightning":
+                onSiteEffect(start,end,caster);
             break;
             //I want a case where it takes two different types and corkscrews it towards them
         }
@@ -304,7 +308,10 @@ public class Spellcaster implements CommandExecutor,Listener {
                 //if item in their main hand is spellbook
                 if(e.getPlayer().getInventory().getItemInMainHand().equals(SpellBook)){
                     //if they have a reference token and a spell Queued
-                    if(playerSpellData.containsKey(e.getPlayer()) && playerToken.containsKey(e.getPlayer())) {
+                    if(playerSpellData.containsKey(e.getPlayer()) && e.getPlayer().isSneaking()){
+                        playerToken.remove(e.getPlayer());
+                    }
+                    else if(playerSpellData.containsKey(e.getPlayer()) && playerToken.containsKey(e.getPlayer())) {
                         Player p = (Player) e.getPlayer();
                         if(tokenPerspective.containsKey(p)){
                             castSpell(playerToken.get(p).getLocation().add(0,1,0), p.getLocation(), e.getPlayer(), playerToken.get(p)); 

@@ -166,6 +166,7 @@ public class Grimoire implements CommandExecutor,Listener {
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ Slot 1 Filler ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
         String travelType = spellEdit.get("traveltype");
         String particle = spellEdit.get("travelparticle");
+        //travelsize go here
         //build fields from args for variable readability
         ItemStack travelToken = new ItemStack(Material.PRISMARINE_SHARD, 1);
         ItemMeta travelmeta = travelToken.getItemMeta();
@@ -212,6 +213,7 @@ public class Grimoire implements CommandExecutor,Listener {
             spellStorage.put("item",tokenSlot.getType().toString());
             spellStorage.put("traveltype",travelMeta.getDisplayName());
             spellStorage.put("travelparticle",travelMeta.getLore().get(0));
+            //travelsize go here
             spellStorage.put("onsiteeffect",onsiteMeta.getDisplayName());
             spellStorage.put("onsiteshape",onsiteMeta.getLore().get(0));
             spellStorage.put("onsitesize",onsiteMeta.getLore().get(1));
