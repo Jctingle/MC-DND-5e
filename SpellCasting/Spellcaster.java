@@ -153,11 +153,10 @@ public class Spellcaster implements CommandExecutor,Listener {
             //do-onSiteMethod
             break;
             case "instant":
-            //will have no particle in travel
-            //do-onSiteMethod
                 onSiteEffect(start,end,caster);
             break;
             case "lightning":
+                end.getWorld().strikeLightningEffect(end);
                 onSiteEffect(start,end,caster);
             break;
             //I want a case where it takes two different types and corkscrews it towards them

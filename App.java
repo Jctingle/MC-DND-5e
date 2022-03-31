@@ -6,7 +6,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import jeffersondev.SpellCasting.Grimoire;
-import jeffersondev.SpellCasting.SpellTester;
 import jeffersondev.SpellCasting.Spellcaster;
 import jeffersondev.SpellCasting.Spellcomponent;
 import jeffersondev.Tokens.Equipmentmanager;
@@ -64,10 +63,6 @@ public class App extends JavaPlugin {
         Ruler ruler = new Ruler(this);
         this.getCommand("ruler").setExecutor(ruler);
         getServer().getPluginManager().registerEvents(ruler, this); 
-
-        SpellTester spelltest = new SpellTester(this);
-        this.getCommand("spelltest").setExecutor(spelltest);
-        getServer().getPluginManager().registerEvents(spelltest, this); 
 
     }
     @Override

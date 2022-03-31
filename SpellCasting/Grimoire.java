@@ -218,7 +218,6 @@ public class Grimoire implements CommandExecutor,Listener {
             spellStorage.put("traveltype",travelMeta.getDisplayName());
             spellStorage.put("travelparticle",travelMeta.getLore().get(0));
             spellStorage.put("travelsize",travelMeta.getLore().get(1));
-            //travelsize go here
             spellStorage.put("onsiteeffect",onsiteMeta.getDisplayName());
             spellStorage.put("onsiteshape",onsiteMeta.getLore().get(0));
             spellStorage.put("onsitesize",onsiteMeta.getLore().get(1));

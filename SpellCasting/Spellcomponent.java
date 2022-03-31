@@ -20,6 +20,9 @@ public class Spellcomponent implements CommandExecutor,Listener {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         Player p = (Player) sender;
         //args will be token, travel, onsite
+        //SpellConstructor will be a GUI based class and will go step by step through the other two pieces.
+        //travel only needs three, type, particle, travelsize.
+        //oh I see a problem I guess lmao.
         String tokentype = args[0];
         switch (tokentype){
             case "token":
