@@ -2,54 +2,29 @@ package jeffersondev.Tokens;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Hashtable;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
-import java.util.UUID;
 
-import org.bukkit.Color;
-import org.bukkit.Location;
-
-import org.bukkit.Particle;
-import org.bukkit.Server;
-import org.bukkit.Particle.DustOptions;
-import org.bukkit.Server.Spigot;
 import org.bukkit.attribute.Attribute;
-import org.bukkit.block.Block;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabCompleter;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.util.RayTraceResult;
-import org.bukkit.util.Vector;
-import org.bukkit.scheduler.BukkitRunnable;
 import jeffersondev.App;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
-import org.bukkit.plugin.java.JavaPlugin;
 
 public class Interact implements CommandExecutor,Listener {
     private App app;
     public Interact(App app){
         this.app = app;
     }
-    private Mobicon mobicon;
-    public Interact(Mobicon mobicon){
-        this.mobicon = mobicon;
-    }
+    // private Mobicon mobicon;
+    // public Interact(Mobicon mobicon){
+    //     this.mobicon = mobicon;
+    // }
     ArrayList<Player> deleteMob = new ArrayList<>();
     HashMap<Player, ArrayList<String>> actionVal = new HashMap<>();
     @Override
@@ -60,7 +35,7 @@ public class Interact implements CommandExecutor,Listener {
             return true;
         }
         else if (args[0].toString().equals("heal")){
-            ArrayList builder = new ArrayList<>();
+            ArrayList<String> builder = new ArrayList<String>();
             builder.add(args[1]);
             builder.add("0");
             actionVal.put(p, builder);
@@ -68,7 +43,7 @@ public class Interact implements CommandExecutor,Listener {
             return true;
         }
         else if (args[0].toString().equals("damage")){
-            ArrayList builder = new ArrayList<>();
+            ArrayList<String> builder = new ArrayList<String>();
             builder.add(args[1]);
             builder.add("1");
             actionVal.put(p, builder);
@@ -76,7 +51,7 @@ public class Interact implements CommandExecutor,Listener {
             return true;
         }
         else if (args[0].toString().equals("temphp")){
-            ArrayList builder = new ArrayList<>();
+            ArrayList<String> builder = new ArrayList<String>();
             builder.add(args[1]);
             builder.add("2");
             actionVal.put(p, builder);
@@ -178,7 +153,7 @@ public class Interact implements CommandExecutor,Listener {
             deleteMob.remove(e1.getPlayer());
         }
         else if(actionVal.containsKey(e1.getPlayer())){
-            ArrayList<String> tempRead = new ArrayList();
+            ArrayList<String> tempRead = new ArrayList<String>();
             tempRead = actionVal.get(e1.getPlayer());
             LivingEntity touched = (LivingEntity) e1.getRightClicked();
 
@@ -200,8 +175,8 @@ public class Interact implements CommandExecutor,Listener {
                     String tempTempHP = "" + tempEnt.getAbsorptionAmount();
                     String tempAC = new String();
                     // startsWith("ac:")
-                    Set tempThing = tempEnt.getScoreboardTags();
-                    HashMap<String, String> tempMap = new HashMap();
+                    // Set<String> tempThing = tempEnt.getScoreboardTags();
+                    HashMap<String, String> tempMap = new HashMap<String, String>();
                     for (String rip: tempEnt.getScoreboardTags()){
                         String[] ripped = rip.split(":");
                         if(ripped.length > 1){

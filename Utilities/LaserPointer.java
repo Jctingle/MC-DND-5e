@@ -98,8 +98,6 @@ public class LaserPointer implements CommandExecutor,Listener {
                     p.getWorld().spawnParticle(Particle.REDSTONE, pSpot, 1, dustOptions);
                     
                     }
-                else{
-                }
             }
         }   
     }
