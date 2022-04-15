@@ -29,6 +29,7 @@ public class PermissionGiver implements CommandExecutor,Listener {
         this.app = app;
     }
     // ArrayList<Player> activeUsers = new ArrayList<>();
+    //Tutorial Book Class
     HashMap<Player, Location> playerMeasure = new HashMap<>();
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){

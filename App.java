@@ -10,6 +10,7 @@ import jeffersondev.SpellCasting.Spellcaster;
 import jeffersondev.SpellCasting.Spellcomponent;
 import jeffersondev.Tokens.Equipmentmanager;
 import jeffersondev.Tokens.Interact;
+import jeffersondev.Tokens.MobMoverJCT;
 import jeffersondev.Tokens.Mobicon;
 import jeffersondev.Utilities.LaserPointer;
 import jeffersondev.Utilities.Ruler;
@@ -63,6 +64,10 @@ public class App extends JavaPlugin {
         Ruler ruler = new Ruler(this);
         this.getCommand("ruler").setExecutor(ruler);
         getServer().getPluginManager().registerEvents(ruler, this); 
+
+        MobMoverJCT mobmover = new MobMoverJCT(this);
+        this.getCommand("mobmover").setExecutor(mobmover);
+        getServer().getPluginManager().registerEvents(mobmover, this); 
 
     }
     @Override
