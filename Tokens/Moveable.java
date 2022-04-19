@@ -15,14 +15,18 @@ public class Moveable {
         // this.ISMOUNTED = isMounted;
      }
 
-     public void moveTo(int x){
+     public void moveTo(){
         Location tokenDestination = TOKEN.getLocation();
-        tokenDestination.setY(TOKEN.getLocation().getY() + 1);
+        Double newY = TOKEN.getLocation().getY();
+        newY = newY + 1.0;
+        tokenDestination.setY(newY);
         TOKEN.teleport(tokenDestination);
      }
-     public void moveToB(int x){
+     public void moveToB(){
         Location tokenDestination = TOKEN.getLocation();
-        tokenDestination.setY(TOKEN.getLocation().getY() - 1);
+        Double newY = TOKEN.getLocation().getY();
+        newY = newY - 1.0;
+        tokenDestination.setY(newY);
         TOKEN.teleport(tokenDestination);
      }
      public void pathBool(){

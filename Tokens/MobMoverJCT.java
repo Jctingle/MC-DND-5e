@@ -25,8 +25,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
 import org.bukkit.event.player.PlayerDropItemEvent;
+import org.bukkit.event.player.PlayerInteractAtEntityEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -69,7 +71,8 @@ public class MobMoverJCT implements CommandExecutor,Listener {
     @EventHandler
     public void onRightClick(PlayerInteractEntityEvent e1) {
         Player p = e1.getPlayer();
-        if(activeMovers.contains(p) && p.getInventory().getItemInMainHand().equals(matchItem())){
+        if(activeMovers.contains(p) && p.getInventory().getItemInMainHand().equals(matchItem()) && e1.getHand().equals(EquipmentSlot.HAND)){
+            e1.setCancelled(true);
             LivingEntity clickedMob = (LivingEntity) e1.getRightClicked();
             if(clickedMob.getScoreboardTags().contains("token")){
                 Moveable mover = new Moveable(clickedMob, clickedMob.getLocation(), false);
@@ -88,15 +91,18 @@ public class MobMoverJCT implements CommandExecutor,Listener {
     public void onRightClick(PlayerInteractEvent e1) {
         if (e1.getAction() == Action.RIGHT_CLICK_AIR || e1.getAction() == Action.RIGHT_CLICK_BLOCK) {
             Player p = e1.getPlayer();
-            if(movingMob.containsKey(p) && p.getInventory().getItemInMainHand().equals(matchItem())) {
+            if(movingMob.containsKey(p) && p.getInventory().getItemInMainHand().equals(matchItem()) && e1.getHand().equals(EquipmentSlot.HAND)) {
                 if(p.isSneaking()){
-                    //open GUI
+                    //do nothing now, need a new way of opening the frickin thing
                     e1.setCancelled(true);
                     p.openInventory(remoteGui(p));
+                    //will have to not use this heh
+                    //some other way/trigger to open a GUI
                 }
                 else{
+                    e1.setCancelled(true);
                     //mode dependant
-                    if (movingMob.get(p).isPath() == true){
+                    if (movingMob.get(p).isPath() == false){
                         Location eyeLoc = p.getEyeLocation();
                         World world = p.getWorld();
                         RayTraceResult rtxResult = world.rayTraceBlocks(eyeLoc, eyeLoc.getDirection(), 10, FluidCollisionMode.NEVER, true);
@@ -110,6 +116,7 @@ public class MobMoverJCT implements CommandExecutor,Listener {
                         RayTraceResult rtxResult = world.rayTraceBlocks(eyeLoc, eyeLoc.getDirection(), 10, FluidCollisionMode.NEVER, true);
                         // movingMob.get(p).movingMobReturn().teleport(rtxResult.getHitPosition().toLocation(world));
                         if (rtxResult != null){
+                            //I see
                             org.bukkit.util.Vector pathVector = rtxResult.getHitPosition().toLocation(world).toVector().subtract(eyeLoc.toVector()).normalize();
                             movingMob.get(p).movingMobReturn().setVelocity(movingMob.get(p).movingMobReturn().getVelocity().add(pathVector));
                         }
@@ -132,7 +139,7 @@ public class MobMoverJCT implements CommandExecutor,Listener {
         inv.setItem(0, slotOne);
         //button 2
         //button 3
-        if (movingMob.get(invoker).isPath()){
+        if (!movingMob.get(invoker).isPath()){
             ItemStack metaInsert = new ItemStack(Material.NETHER_STAR);
             ItemMeta threeMeta = metaInsert.getItemMeta();
             ArrayList<String> movementType = new ArrayList<String>();
@@ -177,28 +184,37 @@ public class MobMoverJCT implements CommandExecutor,Listener {
     public void onInventoryClick(final InventoryClickEvent e) {
         if (!e.getView().getTitle().equals("Mover Remote")) return;
         else{
-            int buttonClicked = e.getRawSlot();
+            Integer buttonClicked = e.getRawSlot();
             e.setCancelled(true);
             Player p = Bukkit.getPlayer(e.getWhoClicked().getName());
             // p.sendMessage("click registered");
+            p.sendMessage(buttonClicked.toString());
             switch (buttonClicked){
                 case 0:
-                    movingMob.get(p).moveTo(1);
+                    movingMob.get(p).moveTo();
+                    break;
                 case 1:
                 case 2:
                     if (movingMob.get(p).isPath()){
                         movingMob.get(p).pathBool();
                         p.openInventory(remoteGui(p));
+                        break;
+
                     }
                     else{
                         movingMob.get(p).pathBool();
                         p.openInventory(remoteGui(p));
+                        break;
                     }
                 case 3:
-                    movingMob.get(p).moveToB(1);
+                    movingMob.get(p).moveToB();
+                    break;
+
                 case 4:
                 case 5:
                     movingMob.get(p).swingArm();
+                    break;
+
             }
         }
     }
@@ -213,7 +229,8 @@ public class MobMoverJCT implements CommandExecutor,Listener {
     public void onItemDrop(final PlayerDropItemEvent e) {
         if (e.getItemDrop() != matchItem()) return;
         else{
-            // e.setCancelled(true);
+            activeMovers.remove(e.getPlayer());
+            e.setCancelled(true);
         }
     }
     //playerquit event too
