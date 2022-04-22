@@ -70,7 +70,6 @@ public class Grimoire implements CommandExecutor,Listener {
         ent.openInventory(inv);
     }
     public Inventory spellViewer(Player viewer){
-        //will need special code now to compare to player's personal spell list
         File dir = new File("plugins/DMTools");
         File[] directoryListing = dir.listFiles();
         Inventory inv = Bukkit.createInventory(null, 18, "Spell Library"); 
@@ -81,8 +80,8 @@ public class Grimoire implements CommandExecutor,Listener {
                 String fileIter = child.getAbsolutePath();
                 //this now imposes a problem
                 if (child.getName().endsWith(".spell")){
-                    HashMap<String, String> spellContents = load(fileIter);
-                    ItemStack referenceItem = new ItemStack(Material.valueOf(spellContents.get("item").toUpperCase()), 1);
+                    Spell spellContents = load(fileIter);
+                    ItemStack referenceItem = new ItemStack(Material.valueOf(spellContents.ITEM().toUpperCase()), 1);
                     ItemMeta referenceMeta= referenceItem.getItemMeta();
                     referenceMeta.setDisplayName(child.getName().replace(".spell", ""));
                     if(grimcallers.get(viewer) != null && grimcallers.get(viewer).contains(child.getName().replace(".spell", ""))){
@@ -130,7 +129,7 @@ public class Grimoire implements CommandExecutor,Listener {
     }
     public Inventory spellEditor(String fileName){
         //I really hate this one ngl
-        HashMap<String, String> spellEdit = load("plugins/DMTools/" + fileName +".spell");
+        Spell spellEdit = load("plugins/DMTools/" + fileName +".spell");
         Inventory inv = Bukkit.createInventory(null, 18, "Spell Editing"); 
         ItemStack labelone = new ItemStack(Material.RED_STAINED_GLASS_PANE, 1);
         ItemStack labeltwo = new ItemStack(Material.BLUE_STAINED_GLASS_PANE, 1);
@@ -158,44 +157,24 @@ public class Grimoire implements CommandExecutor,Listener {
             inv.setItem(i, unusedSlot);
         }
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~LABEL SLOT CODE~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        ItemStack referenceItem = new ItemStack(Material.valueOf(spellEdit.get("item").toUpperCase()), 1);
+        ItemStack referenceItem = new ItemStack(Material.valueOf(spellEdit.ITEM().toUpperCase()), 1);
         ItemMeta referenceMeta= referenceItem.getItemMeta();
         referenceMeta.setDisplayName(fileName);
         referenceItem.setItemMeta(referenceMeta);
         inv.setItem(0, referenceItem);
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ Slot 1 Filler ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        String travelType = spellEdit.get("traveltype");
-        String particle = spellEdit.get("travelparticle");
-        String travelSize = spellEdit.get("travelsize");
-        //travelsize go here
-        //build fields from args for variable readability
         ItemStack travelToken = new ItemStack(Material.PRISMARINE_SHARD, 1);
         ItemMeta travelmeta = travelToken.getItemMeta();
-        travelmeta.setDisplayName(travelType);
+        travelmeta.setDisplayName(spellEdit.TRAVELTYPE());
         //build the lore components
-        ArrayList<String> travelLore = new ArrayList<String>();
-        travelLore.add(particle);
-        travelLore.add(travelSize);
-        travelmeta.setLore(travelLore);
+        travelmeta.setLore(spellEdit.ReturnTravelLore());
         travelToken.setItemMeta(travelmeta);
         inv.setItem(1, travelToken);
-        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ Slot 2 Filler ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-        String onsiteType = spellEdit.get("onsiteeffect");
-        String onsiteParticle = spellEdit.get("onsiteparticle");
-        String onsiteShape = spellEdit.get("onsiteshape");
-        String onsiteSize = spellEdit.get("onsitesize");
-        String onsiteHeight = spellEdit.get("onsiteheight");
-        String onsitePersist = spellEdit.get("persistant");              
+        //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ Slot 2 Filler ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~            
         ItemStack onsiteToken = new ItemStack(Material.PRISMARINE_SHARD, 1);
         ItemMeta onsitemeta = onsiteToken.getItemMeta();
-        onsitemeta.setDisplayName(onsiteType);
-        ArrayList<String> onsiteLore = new ArrayList<String>();
-        onsiteLore.add(onsiteShape);
-        onsiteLore.add(onsiteParticle);
-        onsiteLore.add(onsiteSize);
-        onsiteLore.add(onsiteHeight);
-        onsiteLore.add(onsitePersist);
-        onsitemeta.setLore(onsiteLore);
+        onsitemeta.setDisplayName(spellEdit.ONSITEEFFECT());
+        onsitemeta.setLore(spellEdit.ReturnOnSiteLore());
         onsiteToken.setItemMeta(onsitemeta);
         inv.setItem(2, onsiteToken);
         //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^ Slot 3 Filler ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -213,23 +192,7 @@ public class Grimoire implements CommandExecutor,Listener {
             ItemStack onsiteSlot = e.getView().getItem(2);
             ItemMeta travelMeta = travelSlot.getItemMeta();
             ItemMeta onsiteMeta = onsiteSlot.getItemMeta();
-            HashMap<String, String> spellStorage = new HashMap<>();
-            spellStorage.put("item",tokenSlot.getType().toString());
-            spellStorage.put("traveltype",travelMeta.getDisplayName());
-            spellStorage.put("travelparticle",travelMeta.getLore().get(0));
-            spellStorage.put("travelsize",travelMeta.getLore().get(1));
-
-            spellStorage.put("onsiteeffect",onsiteMeta.getDisplayName());
-
-            spellStorage.put("onsiteparticle",onsiteMeta.getLore().get(0));
-
-            spellStorage.put("onsiteshape",onsiteMeta.getLore().get(1));
-
-            spellStorage.put("onsitesize",onsiteMeta.getLore().get(2));
-
-            spellStorage.put("onsiteheight",onsiteMeta.getLore().get(3));
-
-            spellStorage.put("persistant",onsiteMeta.getLore().get(4));
+            Spell spellStorage = new Spell(tokenSlot.getType().toString(), travelMeta.getDisplayName(), (ArrayList<String>) travelMeta.getLore(), onsiteMeta.getDisplayName(), (ArrayList<String>) onsiteMeta.getLore());
             save("plugins/DMTools/" + fileName +".spell", spellStorage);
             playerView.remove(e.getPlayer());
             return;

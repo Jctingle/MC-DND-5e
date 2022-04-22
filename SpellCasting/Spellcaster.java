@@ -44,7 +44,7 @@ public class Spellcaster implements CommandExecutor,Listener {
     public Spellcaster(App app){
         this.app = app;
     }
-    HashMap<Player, HashMap<String, String>> playerSpellData = new HashMap<>();
+    HashMap<Player, Spell> playerSpellData = new HashMap<>();
     Map<Player, Inventory> playerView = new HashMap<>();
     Map<Player, LivingEntity> playerToken = new HashMap<>();
     ArrayList<Player> spellCache = new ArrayList<>();
@@ -88,13 +88,14 @@ public class Spellcaster implements CommandExecutor,Listener {
         //9 cache variables? traveltype, travelparticle, onsiteeffect, onsiteshape
         //                   onsitesize, onsiteparticle, persistant
         //travel logic
-        String travelType = playerSpellData.get(caster).get("traveltype");
-        Double travelSize = Double.parseDouble(playerSpellData.get(caster).get("travelsize"));
+        Spell currentSpell = playerSpellData.get(caster);
+        String travelType = currentSpell.TRAVELTYPE();
+        Double travelSize = currentSpell.TRAVELSIZE();
         switch(travelType){
             case "cone":
                 //somehow lock player to token perspective and blast
                 if(tokenPerspective.containsKey(caster)){
-                    String coneParticle = (playerSpellData.get(caster).get("travelparticle")).toUpperCase();
+                    String coneParticle = (currentSpell.TRAVELPARTICLE());
                     //some kind of check for colourized particles as well as error inducing particles
                     ParticleCone testCone = new ParticleCone(caster.getEyeLocation(), coneParticle, caster.getEyeLocation().getDirection(), travelSize);
                     tokenOrigin.teleport(caster.getLocation());
@@ -118,7 +119,7 @@ public class Spellcaster implements CommandExecutor,Listener {
             case "beam":
             //line formula between origin and destination
             //This is borrowed code from someone online in a spigot forum
-                Particle importParticle = Particle.valueOf((playerSpellData.get(caster).get("travelparticle")).toUpperCase());
+                Particle importParticle = Particle.valueOf(currentSpell.TRAVELPARTICLE());
                 double pointsPerLine = (start.distance(end)) * 4.0;
                 double d = start.distance(end) / pointsPerLine;
                 for (int i = 0; i < pointsPerLine; i++) {
@@ -167,80 +168,70 @@ public class Spellcaster implements CommandExecutor,Listener {
     }
     //borrowed Code
     public void onSiteEffect(Location start, Location end, Player caster){
-
-        //Special onsite LOCATION, can be calculated fast, only calculate special-special cuboid origin for certain effects.
-        String onesiteEffect = playerSpellData.get(caster).get("onsiteeffect");
-        String onsiteShape = playerSpellData.get(caster).get("onsiteshape");
-        Double onsiteSize = Double.parseDouble(playerSpellData.get(caster).get("onsitesize"));
-        String onsiteParticle = playerSpellData.get(caster).get("onsiteparticle");
-        String onsitePersist = playerSpellData.get(caster).get("persistant");
-        Double onsiteHeight = Double.parseDouble(playerSpellData.get(caster).get("onsiteheight"));
-
-        
-
+        Spell currentSpell = playerSpellData.get(caster);
         //auto cancel any pre-existing concentration area, can tweak this if necessary;
         //!!!!!!!!!!REMINDER TO MAKE A STOP ALL COMMAND!!!!!!!
         //instance variables called into existence here
-        if(onesiteEffect.equals("shape")){
-            switch(onsiteShape){
+        if(currentSpell.ONSITEEFFECT().equals("shape")){
+            switch(currentSpell.ONSITESHAPE()){
             case "sphere":
-                if(onsitePersist.equals("true")){
+                if(currentSpell.PERSISTENT().equals("true")){
                     if(activeFocus.containsKey(caster)){
                         activeFocus.get(caster).cancel();
                     }
                     Location pSpot = end;
-                    pSpot.subtract(onsiteSize/2, 0, onsiteSize/2);
-                    ConcentrationSpell concentrateSphere = new ConcentrationSpell(pSpot,onsiteParticle,onsiteSize, "sphere");
+                    pSpot.subtract(currentSpell.ONSITESIZE()/2, 0, currentSpell.ONSITESIZE()/2);
+                    ConcentrationSpell concentrateSphere = new ConcentrationSpell(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE(), "sphere");
                     activeFocus.put(caster, concentrateSphere);
                     concentrateSphere.runTaskTimer(app, 0, 40);
                 }
                 else{
                     Location pSpot = end;
-                    pSpot.subtract(onsiteSize/2, 0, onsiteSize/2);
-                    ParticleRect cube = new ParticleRect(pSpot, onsiteSize,onsiteSize,onsiteSize, onsiteParticle);
+                    pSpot.subtract(currentSpell.ONSITESIZE()/2, 0, currentSpell.ONSITESIZE()/2);
+                    ParticleRect cube = new ParticleRect(pSpot, currentSpell.ONSITESIZE(),currentSpell.ONSITESIZE(),currentSpell.ONSITESIZE(), currentSpell.ONSITEPARTICLE());
                     cube.draw();
                 }
                 break;
             case "cube":
-                if(onsitePersist.equals("true")){
+                if(currentSpell.PERSISTENT().equals("true")){
                     if(activeFocus.containsKey(caster)){
                         activeFocus.get(caster).cancel();
                     }
                     Location pSpot = end;
-                    pSpot.subtract(onsiteSize/2, 0, onsiteSize/2);
-                    ConcentrationSpell concentrateCube = new ConcentrationSpell(pSpot,onsiteParticle,onsiteSize/3, "cube");
+                    pSpot.subtract(currentSpell.ONSITESIZE()/2, 0, currentSpell.ONSITESIZE()/2);
+                    ConcentrationSpell concentrateCube = new ConcentrationSpell(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE()/3, "cube");
                     activeFocus.put(caster, concentrateCube);
                    concentrateCube.runTaskTimer(app, 0, 40);
                 }
                 else{
                     Location pSpot = end;
-                    pSpot.subtract(onsiteSize/2, 0, onsiteSize/2);
-                    ParticleRect cube = new ParticleRect(pSpot, onsiteSize,onsiteSize,onsiteSize, onsiteParticle);
+                    pSpot.subtract(currentSpell.ONSITESIZE()/2, 0, currentSpell.ONSITESIZE()/2);
+                    ParticleRect cube = new ParticleRect(pSpot, currentSpell.ONSITESIZE(),currentSpell.ONSITESIZE(),currentSpell.ONSITESIZE(), currentSpell.ONSITEPARTICLE());
                     cube.draw();
                 }
                 break;
             case "cylinder":
-                if(onsitePersist.equals("true")){
+                if(currentSpell.PERSISTENT().equals("true")){
                     if(activeFocus.containsKey(caster)){
                         activeFocus.get(caster).cancel();
                     }
                     Location pSpot = end;
-                    ConcentrationSpell concentrateCyl = new ConcentrationSpell(pSpot,onsiteParticle,onsiteSize/3, "cylinder", onsiteHeight);
+                    ConcentrationSpell concentrateCyl = new ConcentrationSpell(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE()/3, "cylinder", currentSpell.ONSITEHEIGHT());
                     activeFocus.put(caster, concentrateCyl);
                    concentrateCyl.runTaskTimer(app, 0, 40);
                 }
                 else{
                     Location pSpot = end;
                     //THIS WILL NEED AN UPDATE ONCE HEIGHT IS TACKED ON
-                    ParticleCyl cyl = new ParticleCyl(pSpot, onsiteParticle, onsiteSize, onsiteHeight);
+                    ParticleCyl cyl = new ParticleCyl(pSpot, currentSpell.ONSITEPARTICLE(), currentSpell.ONSITESIZE(), currentSpell.ONSITEHEIGHT());
                     cyl.draw();
                 }
                 break;
             }
         }
-        else if(onesiteEffect.equals("explosion")){
+        else if(currentSpell.ONSITEEFFECT().equals("explosion")){
         }
-        else if(onesiteEffect.equals("target")){
+        else if(currentSpell.ONSITEEFFECT().equals("target")){
         }
         else { 
         }
@@ -257,8 +248,8 @@ public class Spellcaster implements CommandExecutor,Listener {
         if (learnedSpells.size() >= 1) {
             Integer itercount = 0;
             for (String spell : learnedSpells) {
-                HashMap<String, String> spellContents = load("plugins/DMTools/" + spell + ".spell");
-                ItemStack referenceItem = new ItemStack(Material.valueOf(spellContents.get("item").toUpperCase()), 1);
+                Spell spellContents = load("plugins/DMTools/" + spell + ".spell");
+                ItemStack referenceItem = new ItemStack(Material.valueOf(spellContents.ITEM().toUpperCase()), 1);
                 ItemMeta referenceMeta= referenceItem.getItemMeta();
                 referenceMeta.setDisplayName(spell);
                 referenceItem.setItemMeta(referenceMeta);
@@ -281,7 +272,7 @@ public class Spellcaster implements CommandExecutor,Listener {
         else{
         }
                 e.setCancelled(true);
-                playerSpellData.put((Player) e.getWhoClicked(), (HashMap<String, String>) load("plugins/DMTools/" + e.getCurrentItem().getItemMeta().getDisplayName() + ".spell"));
+                playerSpellData.put((Player) e.getWhoClicked(), (Spell) load("plugins/DMTools/" + e.getCurrentItem().getItemMeta().getDisplayName() + ".spell"));
                 ItemStack SpellBook = matchItem();
                 e.getWhoClicked().getInventory().addItem(SpellBook);
                 playerView.remove(e.getWhoClicked());
@@ -294,7 +285,7 @@ public class Spellcaster implements CommandExecutor,Listener {
     public void onRightClick(PlayerInteractEvent e) {
         if (e.getAction() == Action.RIGHT_CLICK_AIR || e.getAction() == Action.RIGHT_CLICK_BLOCK) {
             ItemStack SpellBook = matchItem();
-            if(e.getPlayer().getInventory().getItemInMainHand() == (null) || e.getPlayer().getInventory().getItemInMainHand().getItemMeta() == null){
+            if(e.getPlayer().getInventory().getItemInMainHand() == (null) || e.getPlayer().getInventory().getItemInMainHand().getItemMeta() == null || e.getPlayer().isSneaking()){
                 return;
             }
             else{
@@ -351,7 +342,7 @@ public class Spellcaster implements CommandExecutor,Listener {
         if(e.getPlayer().getInventory().getItemInMainHand() == (null) || e.getPlayer().getInventory().getItemInMainHand().getItemMeta() == null){
             return;
         }
-        else if(playerSpellData.containsKey(e.getPlayer()) && e.getPlayer().getInventory().getItemInMainHand().equals(SpellBook)) {
+        else if(playerSpellData.containsKey(e.getPlayer()) && e.getPlayer().getInventory().getItemInMainHand().equals(SpellBook) && e.getPlayer().isSneaking()) {
             if(!playerToken.containsKey(e.getPlayer()) && e.getPlayer().isSneaking() && e.getRightClicked().getScoreboardTags().contains("token")){
                 LivingEntity spellSource = (LivingEntity) e.getRightClicked();
                 playerToken.put(e.getPlayer(), spellSource);
