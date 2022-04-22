@@ -35,6 +35,8 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 import org.bukkit.util.io.BukkitObjectInputStream;
 import jeffersondev.App;
+
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -175,25 +177,23 @@ public class Spellcaster implements CommandExecutor,Listener {
         if(currentSpell.ONSITEEFFECT().equals("shape")){
             switch(currentSpell.ONSITESHAPE()){
             case "sphere":
-                if(currentSpell.PERSISTENT().equals("true")){
+                if(currentSpell.PERSISTENT() == true){
                     if(activeFocus.containsKey(caster)){
                         activeFocus.get(caster).cancel();
                     }
                     Location pSpot = end;
-                    pSpot.subtract(currentSpell.ONSITESIZE()/2, 0, currentSpell.ONSITESIZE()/2);
                     ConcentrationSpell concentrateSphere = new ConcentrationSpell(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE(), "sphere");
                     activeFocus.put(caster, concentrateSphere);
                     concentrateSphere.runTaskTimer(app, 0, 40);
                 }
                 else{
                     Location pSpot = end;
-                    pSpot.subtract(currentSpell.ONSITESIZE()/2, 0, currentSpell.ONSITESIZE()/2);
-                    ParticleRect cube = new ParticleRect(pSpot, currentSpell.ONSITESIZE(),currentSpell.ONSITESIZE(),currentSpell.ONSITESIZE(), currentSpell.ONSITEPARTICLE());
-                    cube.draw();
+                    ParticleSphere sphere = new ParticleSphere(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE());
+                    sphere.draw();
                 }
                 break;
             case "cube":
-                if(currentSpell.PERSISTENT().equals("true")){
+                if(currentSpell.PERSISTENT() == true){
                     if(activeFocus.containsKey(caster)){
                         activeFocus.get(caster).cancel();
                     }
@@ -211,7 +211,7 @@ public class Spellcaster implements CommandExecutor,Listener {
                 }
                 break;
             case "cylinder":
-                if(currentSpell.PERSISTENT().equals("true")){
+                if(currentSpell.PERSISTENT() == true){
                     if(activeFocus.containsKey(caster)){
                         activeFocus.get(caster).cancel();
                     }
@@ -274,7 +274,9 @@ public class Spellcaster implements CommandExecutor,Listener {
                 e.setCancelled(true);
                 playerSpellData.put((Player) e.getWhoClicked(), (Spell) load("plugins/DMTools/" + e.getCurrentItem().getItemMeta().getDisplayName() + ".spell"));
                 ItemStack SpellBook = matchItem();
-                e.getWhoClicked().getInventory().addItem(SpellBook);
+                if (e.getWhoClicked().getInventory().contains(SpellBook)){
+                    e.getWhoClicked().getInventory().addItem(SpellBook);
+                }
                 playerView.remove(e.getWhoClicked());
                 e.getView().close();
                 return;
@@ -290,8 +292,9 @@ public class Spellcaster implements CommandExecutor,Listener {
             }
             else{
                 //if item in their main hand is spellbook
-                if(e.getPlayer().getInventory().getItemInMainHand().equals(SpellBook)){
+                if(e.getPlayer().getInventory().getItemInMainHand().equals(SpellBook) && e.getHand().equals(EquipmentSlot.HAND)){
                     //if they have a reference token and a spell Queued
+                    e.setCancelled(true);
                     if(playerSpellData.containsKey(e.getPlayer()) && e.getPlayer().isSneaking()){
                         playerToken.remove(e.getPlayer());
                     }
@@ -326,6 +329,21 @@ public class Spellcaster implements CommandExecutor,Listener {
             }
             
         }   
+        if (e.getAction() == Action.LEFT_CLICK_AIR || e.getAction() == Action.LEFT_CLICK_BLOCK) {
+            ItemStack SpellBook = matchItem();
+            if(e.getPlayer().getInventory().getItemInMainHand() == (null) || e.getPlayer().getInventory().getItemInMainHand().getItemMeta() == null || e.getPlayer().isSneaking()){
+                return;
+            }
+            else{
+                //if item in their main hand is spellbook
+                if(e.getPlayer().getInventory().getItemInMainHand().equals(SpellBook) && e.getHand().equals(EquipmentSlot.HAND)){
+                    if(activeFocus.containsKey(e.getPlayer())){
+                        activeFocus.get(e.getPlayer()).cancel();
+                        activeFocus.remove(e.getPlayer());
+                    }
+                }
+            }
+        }
     }
     // handel if the player right clicks an entity or shift right clicks
     public ItemStack matchItem(){

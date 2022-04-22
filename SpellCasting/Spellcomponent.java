@@ -66,16 +66,14 @@ public class Spellcomponent implements CommandExecutor,Listener {
                 ItemMeta onsitemeta = onsiteToken.getItemMeta();
                 onsitemeta.setDisplayName(onsiteEffect);
                 ArrayList<String> onsiteLore = new ArrayList<String>();
-                if (NumberUtils.isDigits(onsiteShape)){
-                    onsiteLore.add(onsiteParticle);
-                    onsiteLore.add(onsiteShape);
-                    onsiteLore.add(onsiteSize);
-                    onsiteLore.add(onsiteHeight);
-                    onsiteLore.add(onsitePersist);
-                    onsitemeta.setLore(onsiteLore);
-                    onsiteToken.setItemMeta(onsitemeta);
-                    p.getInventory().addItem(onsiteToken);
-                }
+                onsiteLore.add(onsiteParticle);
+                onsiteLore.add(onsiteShape);
+                onsiteLore.add(onsiteSize);
+                onsiteLore.add(onsiteHeight);
+                onsiteLore.add(onsitePersist);
+                onsitemeta.setLore(onsiteLore);
+                onsiteToken.setItemMeta(onsitemeta);
+                p.getInventory().addItem(onsiteToken);
                 break;
         }
 
