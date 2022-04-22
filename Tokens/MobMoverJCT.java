@@ -52,6 +52,7 @@ public class MobMoverJCT implements CommandExecutor,Listener {
             activeMovers.add(p);
             ItemStack remote = matchItem();
             p.getInventory().addItem(remote);
+            p.sendMessage("Please Shift click a token to select");
         }
         else{
             activeMovers.remove(p);
@@ -71,20 +72,22 @@ public class MobMoverJCT implements CommandExecutor,Listener {
     @EventHandler
     public void onRightClick(PlayerInteractEntityEvent e1) {
         Player p = e1.getPlayer();
-        if(activeMovers.contains(p) && p.getInventory().getItemInMainHand().equals(matchItem()) && e1.getHand().equals(EquipmentSlot.HAND)){
-            e1.setCancelled(true);
-            LivingEntity clickedMob = (LivingEntity) e1.getRightClicked();
-            if(clickedMob.getScoreboardTags().contains("token")){
-                Moveable mover = new Moveable(clickedMob, clickedMob.getLocation(), false);
-                movingMob.put(p, mover);
-                p.sendMessage(clickedMob.getName() + " Selected");
-                //create new moveable object, store inside hashmap, reference object and helper methods
+            if(activeMovers.contains(p) && p.getInventory().getItemInMainHand().equals(matchItem()) && e1.getHand().equals(EquipmentSlot.HAND)){
+                if(p.isSneaking()){
+                    e1.setCancelled(true);
+                    LivingEntity clickedMob = (LivingEntity) e1.getRightClicked();
+                    if(clickedMob.getScoreboardTags().contains("token")){
+                        Moveable mover = new Moveable(clickedMob, clickedMob.getLocation(), false);
+                        movingMob.put(p, mover);
+                        p.sendMessage(clickedMob.getName() + " Selected, you ctghyu fjman now right click a destination, or shift left click to open the menu");
+                        //create new moveable object, store inside hashmap, reference object and helper methods
+                    }
+                //if sneaking open menu to do shit
+                //menu options
+                //up 1 block
+                //down one block
+                //activate Pathing mode vs activating whatever mode, the method that returns an Inventory will have conditionals for the construction, maybe make a pre-defined remote object?
             }
-            //if sneaking open menu to do shit
-            //menu options
-            //up 1 block
-            //down one block
-            //activate Pathing mode vs activating whatever mode, the method that returns an Inventory will have conditionals for the construction, maybe make a pre-defined remote object?
         }
     }
     @EventHandler
@@ -94,10 +97,9 @@ public class MobMoverJCT implements CommandExecutor,Listener {
             if(movingMob.containsKey(p) && p.getInventory().getItemInMainHand().equals(matchItem()) && e1.getHand().equals(EquipmentSlot.HAND)) {
                 if(p.isSneaking()){
                     //do nothing now, need a new way of opening the frickin thing
-                    e1.setCancelled(true);
-                    p.openInventory(remoteGui(p));
                     //will have to not use this heh
                     //some other way/trigger to open a GUI
+                    e1.setCancelled(true);
                 }
                 else{
                     e1.setCancelled(true);
@@ -127,6 +129,16 @@ public class MobMoverJCT implements CommandExecutor,Listener {
             //3rd step
             //RTX between point A and B, ifcanpath.
             //Or just teleport
+        }
+        else if (e1.getAction() == Action.LEFT_CLICK_AIR || e1.getAction() == Action.LEFT_CLICK_BLOCK) {
+            Player p = e1.getPlayer();
+            if(movingMob.containsKey(p) && p.getInventory().getItemInMainHand().equals(matchItem()) && e1.getHand().equals(EquipmentSlot.HAND)) {
+                if(p.isSneaking()){
+                    e1.setCancelled(true);
+                    p.openInventory(remoteGui(p));
+                }
+            }
+
         }
     }
     public Inventory remoteGui(Player invoker){

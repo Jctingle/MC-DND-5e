@@ -1,9 +1,6 @@
 package jeffersondev.SpellCasting;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitScheduler;
 import org.bukkit.scheduler.BukkitRunnable;
 public final class ConcentrationSpell extends BukkitRunnable{
 

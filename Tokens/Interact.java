@@ -29,6 +29,9 @@ public class Interact implements CommandExecutor,Listener {
     HashMap<Player, ArrayList<String>> actionVal = new HashMap<>();
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        
+        //Could build a version of this that you do /interact x and then it prompts with a GUI -> I really like this
+
         Player p = ((Player) sender);
         if (args[0].toString().equals("delete")){
             deleteMob.add(p);
@@ -55,7 +58,7 @@ public class Interact implements CommandExecutor,Listener {
             builder.add(args[1]);
             builder.add("2");
             actionVal.put(p, builder);
-            p.sendMessage("Right click to up TempHP to " + args[1]);
+            p.sendMessage("Right click to change TempHP to " + args[1]);
             return true;
         }
         else {

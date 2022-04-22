@@ -169,7 +169,7 @@ public class Spellcaster implements CommandExecutor,Listener {
     public void onSiteEffect(Location start, Location end, Player caster){
 
         //Special onsite LOCATION, can be calculated fast, only calculate special-special cuboid origin for certain effects.
-        String onsiteType = playerSpellData.get(caster).get("onsiteeffect");
+        String onesiteEffect = playerSpellData.get(caster).get("onsiteeffect");
         String onsiteShape = playerSpellData.get(caster).get("onsiteshape");
         Double onsiteSize = Double.parseDouble(playerSpellData.get(caster).get("onsitesize"));
         String onsiteParticle = playerSpellData.get(caster).get("onsiteparticle");
@@ -181,7 +181,7 @@ public class Spellcaster implements CommandExecutor,Listener {
         //auto cancel any pre-existing concentration area, can tweak this if necessary;
         //!!!!!!!!!!REMINDER TO MAKE A STOP ALL COMMAND!!!!!!!
         //instance variables called into existence here
-        if(onsiteType.equals("shape")){
+        if(onesiteEffect.equals("shape")){
             switch(onsiteShape){
             case "sphere":
                 if(onsitePersist.equals("true")){
@@ -238,9 +238,9 @@ public class Spellcaster implements CommandExecutor,Listener {
                 break;
             }
         }
-        else if(onsiteType.equals("explosion")){
+        else if(onesiteEffect.equals("explosion")){
         }
-        else if(onsiteType.equals("target")){
+        else if(onesiteEffect.equals("target")){
         }
         else { 
         }

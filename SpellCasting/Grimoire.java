@@ -218,11 +218,17 @@ public class Grimoire implements CommandExecutor,Listener {
             spellStorage.put("traveltype",travelMeta.getDisplayName());
             spellStorage.put("travelparticle",travelMeta.getLore().get(0));
             spellStorage.put("travelsize",travelMeta.getLore().get(1));
+
             spellStorage.put("onsiteeffect",onsiteMeta.getDisplayName());
-            spellStorage.put("onsiteshape",onsiteMeta.getLore().get(0));
-            spellStorage.put("onsitesize",onsiteMeta.getLore().get(1));
-            spellStorage.put("onsiteheight",onsiteMeta.getLore().get(2));
-            spellStorage.put("onsiteparticle",onsiteMeta.getLore().get(3));
+
+            spellStorage.put("onsiteparticle",onsiteMeta.getLore().get(0));
+
+            spellStorage.put("onsiteshape",onsiteMeta.getLore().get(1));
+
+            spellStorage.put("onsitesize",onsiteMeta.getLore().get(2));
+
+            spellStorage.put("onsiteheight",onsiteMeta.getLore().get(3));
+
             spellStorage.put("persistant",onsiteMeta.getLore().get(4));
             save("plugins/DMTools/" + fileName +".spell", spellStorage);
             playerView.remove(e.getPlayer());
@@ -232,6 +238,12 @@ public class Grimoire implements CommandExecutor,Listener {
             return;
         }
     }
+
+
+//  okay the bug is in the saving of the inventory either on spellconstruction or editing, the lore lines were being swapped around
+
+
+
     @EventHandler
     public void onInventoryClick(final InventoryClickEvent e) {
         if (e.getInventory() != playerView.get(e.getWhoClicked())) return;
@@ -253,7 +265,7 @@ public class Grimoire implements CommandExecutor,Listener {
                 else { 
                     ItemStack enchantify = e.getCurrentItem();
                     if (!grimcallers.containsKey(e.getWhoClicked()) || !grimcallers.get(e.getWhoClicked()).contains(enchantify.getItemMeta().getDisplayName())){
-                        Inventory quickAdd = e.getWhoClicked().getInventory();
+                        // Inventory quickAdd = e.getWhoClicked().getInventory();
                         // quickAdd.addItem(enchantify);
                         ItemMeta quickAddMeta = enchantify.getItemMeta();
                         quickAddMeta.addEnchant(Enchantment.LURE, 1, true);
@@ -275,7 +287,7 @@ public class Grimoire implements CommandExecutor,Listener {
 
                     }
                     else if (grimcallers.get(e.getWhoClicked()).contains(enchantify.getItemMeta().getDisplayName())){
-                        Inventory quickAdd = e.getWhoClicked().getInventory();
+                        // Inventory quickAdd = e.getWhoClicked().getInventory();
                         ItemMeta quickAddMeta = enchantify.getItemMeta();
                         quickAddMeta.removeEnchant(Enchantment.LURE);
                         enchantify.setItemMeta(quickAddMeta);

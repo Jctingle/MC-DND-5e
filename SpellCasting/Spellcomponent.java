@@ -1,6 +1,8 @@
 package jeffersondev.SpellCasting;
 
 import java.util.ArrayList;
+
+import org.apache.commons.lang.math.NumberUtils;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -54,7 +56,7 @@ public class Spellcomponent implements CommandExecutor,Listener {
                 break;
             case "onsite":
             //lots of error checking here
-                String onsiteType = args[1];
+                String onsiteEffect = args[1];
                 String onsiteParticle = args[2];
                 String onsiteShape = args[3];
                 String onsiteSize = args[4];
@@ -62,16 +64,18 @@ public class Spellcomponent implements CommandExecutor,Listener {
                 String onsitePersist = args[6];                
                 ItemStack onsiteToken = new ItemStack(Material.PRISMARINE_SHARD, 1);
                 ItemMeta onsitemeta = onsiteToken.getItemMeta();
-                onsitemeta.setDisplayName(onsiteType);
+                onsitemeta.setDisplayName(onsiteEffect);
                 ArrayList<String> onsiteLore = new ArrayList<String>();
-                onsiteLore.add(onsiteParticle);
-                onsiteLore.add(onsiteShape);
-                onsiteLore.add(onsiteSize);
-                onsiteLore.add(onsiteHeight);
-                onsiteLore.add(onsitePersist);
-                onsitemeta.setLore(onsiteLore);
-                onsiteToken.setItemMeta(onsitemeta);
-                p.getInventory().addItem(onsiteToken);
+                if (NumberUtils.isDigits(onsiteShape)){
+                    onsiteLore.add(onsiteParticle);
+                    onsiteLore.add(onsiteShape);
+                    onsiteLore.add(onsiteSize);
+                    onsiteLore.add(onsiteHeight);
+                    onsiteLore.add(onsitePersist);
+                    onsitemeta.setLore(onsiteLore);
+                    onsiteToken.setItemMeta(onsitemeta);
+                    p.getInventory().addItem(onsiteToken);
+                }
                 break;
         }
 
