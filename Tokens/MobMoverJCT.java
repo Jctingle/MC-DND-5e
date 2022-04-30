@@ -104,10 +104,22 @@ public class MobMoverJCT implements CommandExecutor,Listener {
                 else{
                     e1.setCancelled(true);
                     //mode dependant
-                    if (movingMob.get(p).isPath() == false){
+                    if (movingMob.get(p).isCursor() == true){
                         Location eyeLoc = p.getEyeLocation();
                         World world = p.getWorld();
-                        RayTraceResult rtxResult = world.rayTraceBlocks(eyeLoc, eyeLoc.getDirection(), 10, FluidCollisionMode.NEVER, true);
+                        RayTraceResult rtxResult = world.rayTraceBlocks(eyeLoc, eyeLoc.getDirection(), 3, FluidCollisionMode.NEVER, true);
+                        if (rtxResult != null){
+                            movingMob.get(p).movingMobReturn().teleport(rtxResult.getHitPosition().toLocation(world));
+                        }
+                        else{
+                            Location rangedDistance = eyeLoc.add(eyeLoc.getDirection().multiply(3));
+                            movingMob.get(p).movingMobReturn().teleport(rangedDistance);
+                        }
+                    }
+                    else if (movingMob.get(p).isPath() == false){
+                        Location eyeLoc = p.getEyeLocation();
+                        World world = p.getWorld();
+                        RayTraceResult rtxResult = world.rayTraceBlocks(eyeLoc, eyeLoc.getDirection(), 35, FluidCollisionMode.NEVER, true);
                         if (rtxResult != null){
                             movingMob.get(p).movingMobReturn().teleport(rtxResult.getHitPosition().toLocation(world));
                         }
@@ -178,6 +190,26 @@ public class MobMoverJCT implements CommandExecutor,Listener {
         slotFour.setItemMeta(fourMeta); 
         inv.setItem(3, slotFour);
         //button 5
+        if (!movingMob.get(invoker).isCursor()){
+            ItemStack slotFive = new ItemStack(Material.CHORUS_FRUIT);
+            ItemMeta fiveMeta = slotFive.getItemMeta();
+            ArrayList<String> movementType = new ArrayList<String>();
+            movementType.add("Short Range");
+            fiveMeta.setDisplayName("Toggle Target Mode");
+            fiveMeta.setLore(movementType);
+            slotFive.setItemMeta(fiveMeta);
+            inv.setItem(4, slotFive);
+        }
+        else{
+            ItemStack slotFive = new ItemStack(Material.CHORUS_FLOWER);
+            ItemMeta fiveMeta = slotFive.getItemMeta();
+            ArrayList<String> movementType = new ArrayList<String>();
+            movementType.add("Long Range");
+            fiveMeta.setDisplayName("Toggle Target Mode");
+            fiveMeta.setLore(movementType);
+            slotFive.setItemMeta(fiveMeta);
+            inv.setItem(4, slotFive);
+        }
         //button 6
         ItemStack slotSix = new ItemStack(Material.IRON_SWORD);
         ItemMeta sixMeta = slotSix.getItemMeta();
@@ -223,6 +255,17 @@ public class MobMoverJCT implements CommandExecutor,Listener {
                     break;
 
                 case 4:
+                if (movingMob.get(p).isCursor()){
+                    movingMob.get(p).cursorBool();
+                    p.openInventory(remoteGui(p));
+                    break;
+
+                }
+                else{
+                    movingMob.get(p).cursorBool();
+                    p.openInventory(remoteGui(p));
+                    break;
+                }
                 case 5:
                     movingMob.get(p).swingArm();
                     break;

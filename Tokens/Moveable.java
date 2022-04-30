@@ -7,6 +7,7 @@ public class Moveable {
     private LivingEntity TOKEN;
     private Location STARTLOCATION;
     private Boolean ISPATH;
+    private boolean CURSORMOVEMENT = false;
     // private Boolean ISMOUNTED;
      Moveable(LivingEntity token, Location currentLoc, Boolean isPath/*, Boolean isMounted*/){
         this.TOKEN = token;
@@ -41,6 +42,12 @@ public class Moveable {
      public void swingArm(){
          TOKEN.swingMainHand();
      }
+     public boolean isCursor(){
+        return this.CURSORMOVEMENT;
+     }
+     public void cursorBool(){
+      this.CURSORMOVEMENT = !CURSORMOVEMENT;
+   }
      //moveUp
      //moveDown
      //Attack Animation   swingMainHand()

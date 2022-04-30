@@ -65,8 +65,6 @@ public class Spellcaster implements CommandExecutor,Listener {
             spellCache.add(p);
         }
         if(spellCache.contains(p)){
-            //load smol menu of spell inventory
-            //oninventory click
             Inventory inv = spellChooser(p);
             openInventory(p, inv);
             playerView.put(p, inv);
@@ -182,13 +180,13 @@ public class Spellcaster implements CommandExecutor,Listener {
                         activeFocus.get(caster).cancel();
                     }
                     Location pSpot = end;
-                    ConcentrationSpell concentrateSphere = new ConcentrationSpell(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE(), "sphere");
+                    ConcentrationSpell concentrateSphere = new ConcentrationSpell(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE()/3, "sphere");
                     activeFocus.put(caster, concentrateSphere);
                     concentrateSphere.runTaskTimer(app, 0, 40);
                 }
                 else{
                     Location pSpot = end;
-                    ParticleSphere sphere = new ParticleSphere(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE());
+                    ParticleSphere sphere = new ParticleSphere(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE()/3);
                     sphere.draw();
                 }
                 break;
@@ -198,15 +196,15 @@ public class Spellcaster implements CommandExecutor,Listener {
                         activeFocus.get(caster).cancel();
                     }
                     Location pSpot = end;
-                    pSpot.subtract(currentSpell.ONSITESIZE()/2, 0, currentSpell.ONSITESIZE()/2);
+                    pSpot.subtract((currentSpell.ONSITESIZE()/3)/2, 0, (currentSpell.ONSITESIZE()/3)/2);
                     ConcentrationSpell concentrateCube = new ConcentrationSpell(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE()/3, "cube");
                     activeFocus.put(caster, concentrateCube);
                    concentrateCube.runTaskTimer(app, 0, 40);
                 }
                 else{
                     Location pSpot = end;
-                    pSpot.subtract(currentSpell.ONSITESIZE()/2, 0, currentSpell.ONSITESIZE()/2);
-                    ParticleRect cube = new ParticleRect(pSpot, currentSpell.ONSITESIZE(),currentSpell.ONSITESIZE(),currentSpell.ONSITESIZE(), currentSpell.ONSITEPARTICLE());
+                    pSpot.subtract((currentSpell.ONSITESIZE()/3)/2, 0, (currentSpell.ONSITESIZE()/3)/2);
+                    ParticleRect cube = new ParticleRect(pSpot, currentSpell.ONSITESIZE(),currentSpell.ONSITESIZE(),currentSpell.ONSITESIZE()/3, currentSpell.ONSITEPARTICLE());
                     cube.draw();
                 }
                 break;
@@ -223,7 +221,7 @@ public class Spellcaster implements CommandExecutor,Listener {
                 else{
                     Location pSpot = end;
                     //THIS WILL NEED AN UPDATE ONCE HEIGHT IS TACKED ON
-                    ParticleCyl cyl = new ParticleCyl(pSpot, currentSpell.ONSITEPARTICLE(), currentSpell.ONSITESIZE(), currentSpell.ONSITEHEIGHT());
+                    ParticleCyl cyl = new ParticleCyl(pSpot, currentSpell.ONSITEPARTICLE(), currentSpell.ONSITESIZE()/3, currentSpell.ONSITEHEIGHT()/3);
                     cyl.draw();
                 }
                 break;
@@ -274,7 +272,7 @@ public class Spellcaster implements CommandExecutor,Listener {
                 e.setCancelled(true);
                 playerSpellData.put((Player) e.getWhoClicked(), (Spell) load("plugins/DMTools/" + e.getCurrentItem().getItemMeta().getDisplayName() + ".spell"));
                 ItemStack SpellBook = matchItem();
-                if (e.getWhoClicked().getInventory().contains(SpellBook)){
+                if (!e.getWhoClicked().getInventory().contains(SpellBook)){
                     e.getWhoClicked().getInventory().addItem(SpellBook);
                 }
                 playerView.remove(e.getWhoClicked());
