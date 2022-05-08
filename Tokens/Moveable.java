@@ -1,7 +1,11 @@
 package jeffersondev.Tokens;
 
 import org.bukkit.Location;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
+import org.bukkit.entity.MagmaCube;
+import org.bukkit.entity.Phantom;
+import org.bukkit.entity.Slime;
 
 public class Moveable {
     private LivingEntity TOKEN;
@@ -33,6 +37,44 @@ public class Moveable {
      public void pathBool(){
         this.ISPATH = !ISPATH;
      }
+     public void sizeUp(){
+      //   Slime sizer = TOKEN;
+        switch(TOKEN.getType()){
+         case SLIME:
+            Slime sl = (Slime) TOKEN;
+            sl.setSize(sl.getSize() + 1);
+         break;
+         case PHANTOM:
+            Phantom ph = (Phantom) TOKEN;
+            ph.setSize(ph.getSize() + 1);
+         break;
+         case MAGMA_CUBE:
+            MagmaCube mc = (MagmaCube) TOKEN;
+            mc.setSize(mc.getSize() + 1);
+         break;
+         default:
+            break;
+        }
+      // this.TOKEN.setSize(TOKEN.getSize() + 1);
+      }
+      public void sizeDown(){
+         switch(TOKEN.getType()){
+            case SLIME:
+               Slime sl = (Slime) TOKEN;
+               sl.setSize(sl.getSize() - 1);
+            break;
+            case PHANTOM:
+               Phantom ph = (Phantom) TOKEN;
+               ph.setSize(ph.getSize() - 1);
+            break;
+            case MAGMA_CUBE:
+               MagmaCube mc = (MagmaCube) TOKEN;
+               mc.setSize(mc.getSize() - 1);
+            break;
+            default:
+               break;
+           }
+      }
      public Boolean isPath(){
         return ISPATH;
      }
@@ -47,6 +89,12 @@ public class Moveable {
      }
      public void cursorBool(){
       this.CURSORMOVEMENT = !CURSORMOVEMENT;
+   }
+   public boolean isSlime(){
+      if(TOKEN.getType().equals(EntityType.SLIME) || TOKEN.getType().equals(EntityType.MAGMA_CUBE) || TOKEN.getType().equals(EntityType.PHANTOM)){
+         return true;
+      }
+      else return false;
    }
      //moveUp
      //moveDown

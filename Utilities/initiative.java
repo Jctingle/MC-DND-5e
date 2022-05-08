@@ -17,7 +17,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.MainHand;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -202,7 +204,6 @@ public class initiative implements CommandExecutor,Listener {
     }
     @EventHandler
     public void onRightClick(PlayerInteractEvent event){
-        Server server = Bukkit.getServer();
         Player player = event.getPlayer();  
         ItemStack item = new ItemStack(Material.EMERALD, 1);
         ItemMeta meta = item.getItemMeta();
@@ -210,45 +211,43 @@ public class initiative implements CommandExecutor,Listener {
         item.setItemMeta(meta);
 
         Team activeUnit = board.getTeam("active");
-            if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK){
-                if (player.getInventory().getItemInMainHand() == null || player.getInventory().getItemInMainHand().getType() == Material.AIR) {
-                    // they have nothing in their hand
-                }
-                else if(player.getInventory().getItemInMainHand().getItemMeta().equals(meta)){  
-                    event.setCancelled(true);
-                    Bukkit.broadcastMessage(ChatColor.GOLD + player.getName() + ChatColor.DARK_RED + " Has finished their Turn");
-                    player.getInventory().remove(item);
-                    if (initBlock.get(currentTurn).size() > 1){
-                        Boolean tempBool = false;
-                        for (String entry : initBlock.get(currentTurn)) {
-                            if (unitOwner.get(entry).getInventory().contains(item)){
-                                tempBool = true;
-                            }
-                            else if(activeUnit.hasEntry(entry)){
-                                activeUnit.removeEntry(entry);
-                            }
+        if(event.getAction() == Action.RIGHT_CLICK_AIR || event.getAction() == Action.RIGHT_CLICK_BLOCK){
+            if (player.getInventory().getItemInMainHand() == null || player.getInventory().getItemInMainHand().getType() == Material.AIR) {
+                // they have nothing in their hand
+            }
+            else if(player.getInventory().getItemInMainHand().getItemMeta().equals(meta) && event.getHand().equals(EquipmentSlot.HAND)){  
+                event.setCancelled(true);
+                Bukkit.broadcastMessage(ChatColor.GOLD + player.getName() + ChatColor.DARK_RED + " Has finished their Turn");
+                player.getInventory().remove(item);
+                if (initBlock.get(currentTurn).size() > 1){
+                    Boolean tempBool = false;
+                    for (String entry : initBlock.get(currentTurn)) {
+                        if (unitOwner.get(entry).getInventory().contains(item)){
+                            tempBool = true;
                         }
-                        if (tempBool == true){
-                            //someone still has a turn token
-                            //do nothing :)
+                        else if(activeUnit.hasEntry(entry)){
+                            activeUnit.removeEntry(entry);
                         }
-                        else{
-                            for (String entry : initBlock.get(currentTurn)) {
-                                activeUnit.removeEntry(entry);
-                            }
-                            ArrayList tempAL = whoseTurnNext();
-                            activeTurn(tempAL);
-                        }
+                    }
+                    if (tempBool == true){
                     }
                     else{
-                        //just pass the next group into active and remove the current guy from active group, ezpz
                         for (String entry : initBlock.get(currentTurn)) {
-                                activeUnit.removeEntry(entry);
-                            }
+                            activeUnit.removeEntry(entry);
+                        }
                         ArrayList tempAL = whoseTurnNext();
                         activeTurn(tempAL);
-                        }
-                }
                     }
+                }
+                else{
+                    //just pass the next group into active and remove the current guy from active group, ezpz
+                    for (String entry : initBlock.get(currentTurn)) {
+                            activeUnit.removeEntry(entry);
+                        }
+                    ArrayList tempAL = whoseTurnNext();
+                    activeTurn(tempAL);
+                    }
+            }
+        }
                 }
 }

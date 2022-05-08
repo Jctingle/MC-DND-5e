@@ -13,6 +13,7 @@ import jeffersondev.Tokens.Interact;
 import jeffersondev.Tokens.MobMoverJCT;
 import jeffersondev.Tokens.Mobicon;
 import jeffersondev.Utilities.LaserPointer;
+import jeffersondev.Utilities.PermissionGiver;
 import jeffersondev.Utilities.Ruler;
 import jeffersondev.Utilities.dmNotes;
 import jeffersondev.Utilities.initiative;
@@ -68,6 +69,10 @@ public class App extends JavaPlugin {
         MobMoverJCT mobmover = new MobMoverJCT(this);
         this.getCommand("mobmover").setExecutor(mobmover);
         getServer().getPluginManager().registerEvents(mobmover, this); 
+
+        PermissionGiver permissiongiver = new PermissionGiver(this);
+        this.getCommand("permissiongiver").setExecutor(permissiongiver);
+        getServer().getPluginManager().registerEvents(permissiongiver, this); 
 
     }
     @Override

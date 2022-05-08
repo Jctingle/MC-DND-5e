@@ -79,7 +79,7 @@ public class MobMoverJCT implements CommandExecutor,Listener {
                     if(clickedMob.getScoreboardTags().contains("token")){
                         Moveable mover = new Moveable(clickedMob, clickedMob.getLocation(), false);
                         movingMob.put(p, mover);
-                        p.sendMessage(clickedMob.getName() + " Selected, you ctghyu fjman now right click a destination, or shift left click to open the menu");
+                        p.sendMessage(clickedMob.getName() + " Selected, you can now right click a destination, or shift left click to open the menu");
                         //create new moveable object, store inside hashmap, reference object and helper methods
                     }
                 //if sneaking open menu to do shit
@@ -216,6 +216,23 @@ public class MobMoverJCT implements CommandExecutor,Listener {
         sixMeta.setDisplayName("Swing Main Arm");
         slotSix.setItemMeta(sixMeta); 
         inv.setItem(5, slotSix);
+        //button 7
+        if(movingMob.get(invoker).isSlime()){
+            ItemStack slotSeven = new ItemStack(Material.LEATHER);
+            ItemMeta sevenMeta = slotSeven.getItemMeta();
+            sevenMeta.setDisplayName("Increase size by 1");
+            slotSeven.setItemMeta(sevenMeta); 
+            inv.setItem(6, slotSeven);
+        }
+        //button 8
+        if(movingMob.get(invoker).isSlime()){
+            ItemStack slotEight = new ItemStack(Material.RABBIT_HIDE);
+            ItemMeta eightMeta = slotEight.getItemMeta();
+            eightMeta.setDisplayName("Decrease size by 1");
+            slotEight.setItemMeta(eightMeta); 
+            inv.setItem(7, slotEight);
+        }
+        //button 9
         //What options do I want in the remote control.
         //Move up
         //move down
@@ -232,7 +249,7 @@ public class MobMoverJCT implements CommandExecutor,Listener {
             e.setCancelled(true);
             Player p = Bukkit.getPlayer(e.getWhoClicked().getName());
             // p.sendMessage("click registered");
-            p.sendMessage(buttonClicked.toString());
+            // p.sendMessage(buttonClicked.toString());
             switch (buttonClicked){
                 case 0:
                     movingMob.get(p).moveTo();
@@ -269,6 +286,16 @@ public class MobMoverJCT implements CommandExecutor,Listener {
                 case 5:
                     movingMob.get(p).swingArm();
                     break;
+                case 6:
+                        movingMob.get(p).sizeUp();
+                    break;
+                case 7:
+                    movingMob.get(p).sizeDown();
+                    break;
+                case 8:
+
+                    break;
+
 
             }
         }

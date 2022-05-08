@@ -12,6 +12,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
+import org.bukkit.scoreboard.Team;
+
 import jeffersondev.App;
 import net.md_5.bungee.api.ChatMessageType;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -168,7 +170,31 @@ public class Interact implements CommandExecutor,Listener {
             Player p1 = (Player) e1.getPlayer();
             //will also need a case here to handle DM pulling info
                 LivingEntity tempEnt = (LivingEntity) e1.getRightClicked();
-                if (tempEnt.getScoreboardTags().contains("token")){
+                if (tempEnt.getScoreboardTags().contains("token") && tempEnt.getScoreboardTags().contains("PlayerCharacter")){
+                    e1.setCancelled(true);
+                    String tempName = tempEnt.getCustomName();
+                    //have to change this to custom nbt or scoreboard tag
+                    //scoreboard tags are easiest to check for YES or NO, slash basically checkboxes
+                    // String tempAC = Double.toString(tempEnt.getAttribute(Attribute.GENERIC_ARMOR_TOUGHNESS).getValue());
+                    String tempHealth =  "" + tempEnt.getHealth();
+                    String tempTempHP = "" + tempEnt.getAbsorptionAmount();
+                    String tempAC = new String();
+                    // startsWith("ac:")
+                    // Set<String> tempThing = tempEnt.getScoreboardTags();
+                    HashMap<String, String> tempMap = new HashMap<String, String>();
+                    for (String rip: tempEnt.getScoreboardTags()){
+                        String[] ripped = rip.split(":");
+                        if(ripped.length > 1){
+                            tempMap.put(ripped[0], ripped[1]);
+                        }
+                    }
+                    tempAC = tempMap.get("ac");
+                    // for(String tag : tempEnt.getScoreboardTags()){
+                    //     if (tag.startsWith("ac:")){
+                    //         tempAC = tag.replace("ac:", "");
+                    p1.spigot().sendMessage(ChatMessageType.ACTION_BAR, TextComponent.fromLegacyText("" + tempName + " AC: " + tempAC + " CurrentHealth: " + tempHealth + " tempHP: " + tempTempHP));
+                }
+                else if (tempEnt.getScoreboardTags().contains("token") && p1.isOp()){
                     e1.setCancelled(true);
                     String tempName = tempEnt.getCustomName();
                     //have to change this to custom nbt or scoreboard tag

@@ -130,7 +130,7 @@ public class Spellcaster implements CommandExecutor,Listener {
                     start.getWorld().spawnParticle(importParticle, l, 0, 0, 0, 0, 0.05);
                     //for secondary travel particle, put other one here
                 }
-                onSiteEffect(start,end,caster);
+                onSiteEffect(start,end,caster,0);
                 //do-onSiteMethod
             break;
             case "skull":
@@ -139,26 +139,28 @@ public class Spellcaster implements CommandExecutor,Listener {
                 WitherSkull wskull = tokenOrigin.launchProjectile(WitherSkull.class);
                 Vector skullvelocity = end.toVector().subtract(wskull.getLocation().toVector()).normalize();
                 wskull.setVelocity(wskull.getVelocity().add(skullvelocity));
-                onSiteEffect(start,end,caster);
+                onSiteEffect(start,end,caster,0);
                 //do onsite
             break;
             case "ball":
-                onSiteEffect(start,end,caster);
+                ParticleOrb travelOrb = new ParticleOrb(start, currentSpell.TRAVELPARTICLE(), end);
+                travelOrb.runTaskTimer(app, 0, 20);
+                onSiteEffect(start,end,caster,travelOrb.delayCalculator());
             break;
             //expand arrow case/duplicate and make spectral arrow, or other visible travel arrow varieties
             case "arrow":
                 Arrow arrow = tokenOrigin.launchProjectile(Arrow.class);
                 Vector velocity = end.toVector().subtract(arrow.getLocation().toVector()).normalize();
                 arrow.setVelocity(arrow.getVelocity().add(velocity));
-                onSiteEffect(start,end,caster);
+                onSiteEffect(start,end,caster,0);
             //do-onSiteMethod
             break;
             case "instant":
-                onSiteEffect(start,end,caster);
+                onSiteEffect(start,end,caster,0);
             break;
             case "lightning":
                 end.getWorld().strikeLightningEffect(end);
-                onSiteEffect(start,end,caster);
+                onSiteEffect(start,end,caster, 0);
             break;
             //I want a case where it takes two different types and corkscrews it towards them
         }
@@ -167,7 +169,7 @@ public class Spellcaster implements CommandExecutor,Listener {
         return null;
     }
     //borrowed Code
-    public void onSiteEffect(Location start, Location end, Player caster){
+    public void onSiteEffect(Location start, Location end, Player caster, long delay){
         Spell currentSpell = playerSpellData.get(caster);
         //auto cancel any pre-existing concentration area, can tweak this if necessary;
         //!!!!!!!!!!REMINDER TO MAKE A STOP ALL COMMAND!!!!!!!
@@ -182,7 +184,7 @@ public class Spellcaster implements CommandExecutor,Listener {
                     Location pSpot = end;
                     ConcentrationSpell concentrateSphere = new ConcentrationSpell(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE()/3, "sphere");
                     activeFocus.put(caster, concentrateSphere);
-                    concentrateSphere.runTaskTimer(app, 0, 40);
+                    concentrateSphere.runTaskTimer(app, delay, 40);
                 }
                 else{
                     Location pSpot = end;
@@ -199,7 +201,7 @@ public class Spellcaster implements CommandExecutor,Listener {
                     pSpot.subtract((currentSpell.ONSITESIZE()/3)/2, 0, (currentSpell.ONSITESIZE()/3)/2);
                     ConcentrationSpell concentrateCube = new ConcentrationSpell(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE()/3, "cube");
                     activeFocus.put(caster, concentrateCube);
-                   concentrateCube.runTaskTimer(app, 0, 40);
+                   concentrateCube.runTaskTimer(app, delay, 40);
                 }
                 else{
                     Location pSpot = end;
@@ -216,7 +218,7 @@ public class Spellcaster implements CommandExecutor,Listener {
                     Location pSpot = end;
                     ConcentrationSpell concentrateCyl = new ConcentrationSpell(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE()/3, "cylinder", currentSpell.ONSITEHEIGHT());
                     activeFocus.put(caster, concentrateCyl);
-                   concentrateCyl.runTaskTimer(app, 0, 40);
+                   concentrateCyl.runTaskTimer(app, delay, 40);
                 }
                 else{
                     Location pSpot = end;

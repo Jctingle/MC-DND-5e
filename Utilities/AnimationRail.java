@@ -22,10 +22,12 @@ public class AnimationRail implements CommandExecutor,Listener {
     public AnimationRail(App app){
         this.app = app;
     }
+    ArrayList<Player> activeList = new ArrayList<Player>();
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         if(sender instanceof Player){
             Player p = ((Player) sender);
+            activeList.add(p);
             return true;
         }
         else{
