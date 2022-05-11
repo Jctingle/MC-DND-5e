@@ -108,7 +108,7 @@ public class LaserPointer implements CommandExecutor,Listener {
                 Player p = (Player) e.getPlayer();
                 e.setCancelled(true);
                 LivingEntity glower = (LivingEntity) e.getRightClicked();
-                PotionEffect targetGlow = new PotionEffect(PotionEffectType.GLOWING, 50, 1);
+                PotionEffect targetGlow = new PotionEffect(PotionEffectType.GLOWING, 50, 1, false, false, false);
                 glower.addPotionEffect(targetGlow);
             }  
     }

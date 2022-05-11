@@ -194,7 +194,7 @@ public class MobMoverJCT implements CommandExecutor,Listener {
             ItemStack slotFive = new ItemStack(Material.CHORUS_FRUIT);
             ItemMeta fiveMeta = slotFive.getItemMeta();
             ArrayList<String> movementType = new ArrayList<String>();
-            movementType.add("Short Range");
+            movementType.add("Current: Long Range");
             fiveMeta.setDisplayName("Toggle Target Mode");
             fiveMeta.setLore(movementType);
             slotFive.setItemMeta(fiveMeta);
@@ -204,7 +204,7 @@ public class MobMoverJCT implements CommandExecutor,Listener {
             ItemStack slotFive = new ItemStack(Material.CHORUS_FLOWER);
             ItemMeta fiveMeta = slotFive.getItemMeta();
             ArrayList<String> movementType = new ArrayList<String>();
-            movementType.add("Long Range");
+            movementType.add("Current: Short Range");
             fiveMeta.setDisplayName("Toggle Target Mode");
             fiveMeta.setLore(movementType);
             slotFive.setItemMeta(fiveMeta);
@@ -233,6 +233,7 @@ public class MobMoverJCT implements CommandExecutor,Listener {
             inv.setItem(7, slotEight);
         }
         //button 9
+        //button 9 will be option to do group move, will have it's own collection
         //What options do I want in the remote control.
         //Move up
         //move down
