@@ -157,7 +157,9 @@ public class Mobicon implements CommandExecutor,Listener,TabCompleter {
                         //check and set max health higher than current
 
                         token.setCustomName(mobName);
-                        token.setCustomNameVisible(true);   
+                        token.setCustomNameVisible(true); 
+                        token.setPersistent(true);
+                        token.setRemoveWhenFarAway(false);  
                         token.addScoreboardTag("ac:" + AC);
                         token.getAttribute(Attribute.GENERIC_MAX_HEALTH).setBaseValue(health);
                         token.setHealth(health);

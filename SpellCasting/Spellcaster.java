@@ -97,7 +97,7 @@ public class Spellcaster implements CommandExecutor,Listener {
                 if(tokenPerspective.containsKey(caster)){
                     String coneParticle = (currentSpell.TRAVELPARTICLE());
                     //some kind of check for colourized particles as well as error inducing particles
-                    ParticleCone testCone = new ParticleCone(caster.getEyeLocation(), coneParticle, caster.getEyeLocation().getDirection(), travelSize);
+                    ParticleCone testCone = new ParticleCone(caster.getEyeLocation(), coneParticle, caster.getEyeLocation().getDirection(), travelSize/3);
                     tokenOrigin.teleport(caster.getLocation());
                     caster.teleport(tokenPerspective.get(caster));
                     caster.setWalkSpeed(.2f);
@@ -201,12 +201,12 @@ public class Spellcaster implements CommandExecutor,Listener {
                     pSpot.subtract((currentSpell.ONSITESIZE()/3)/2, 0, (currentSpell.ONSITESIZE()/3)/2);
                     ConcentrationSpell concentrateCube = new ConcentrationSpell(pSpot,currentSpell.ONSITEPARTICLE(),currentSpell.ONSITESIZE()/3, "cube");
                     activeFocus.put(caster, concentrateCube);
-                   concentrateCube.runTaskTimer(app, delay, 40);
+                    concentrateCube.runTaskTimer(app, delay, 40);
                 }
                 else{
                     Location pSpot = end;
                     pSpot.subtract((currentSpell.ONSITESIZE()/3)/2, 0, (currentSpell.ONSITESIZE()/3)/2);
-                    ParticleRect cube = new ParticleRect(pSpot, currentSpell.ONSITESIZE(),currentSpell.ONSITESIZE(),currentSpell.ONSITESIZE()/3, currentSpell.ONSITEPARTICLE());
+                    ParticleRect cube = new ParticleRect(pSpot, currentSpell.ONSITESIZE()/3,currentSpell.ONSITESIZE()/3,currentSpell.ONSITESIZE()/3, currentSpell.ONSITEPARTICLE());
                     cube.draw();
                 }
                 break;

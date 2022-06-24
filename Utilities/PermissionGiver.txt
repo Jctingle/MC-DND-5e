@@ -50,6 +50,7 @@ public class PermissionGiver implements CommandExecutor,Listener {
                 PotionEffect invisoBill = new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 0, false, false, false);
                 p.addPotionEffect(invisoBill);
                 p.setScoreboard(board);
+                activePlayers.add(p);
             }
             else if(!p.isOp() && args[0].equals("leave") && activePlayers.contains(p)){
                 players.removeEntry(p.getName());

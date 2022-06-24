@@ -58,10 +58,10 @@ public class Spellcomponent implements CommandExecutor,Listener {
             //lots of error checking here
                 String onsiteEffect = args[1];
                 String onsiteParticle = args[2];
-                String onsiteShape = args[3];
-                String onsiteSize = args[4];
-                String onsiteHeight = args[5];
-                String onsitePersist = args[6];                
+                String onsiteShape = args[3]; //could be optional
+                String onsiteSize = args[4]; 
+                String onsiteHeight = args[5]; //could be optional
+                String onsitePersist = args[6]; //should be more optional                
                 ItemStack onsiteToken = new ItemStack(Material.PRISMARINE_SHARD, 1);
                 ItemMeta onsitemeta = onsiteToken.getItemMeta();
                 onsitemeta.setDisplayName(onsiteEffect);

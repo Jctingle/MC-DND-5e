@@ -1,11 +1,14 @@
 package jeffersondev.Tokens;
 
 import org.bukkit.Location;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Phantom;
+import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
+import org.bukkit.util.Vector;
 
 public class Moveable {
     private LivingEntity TOKEN;
@@ -37,20 +40,26 @@ public class Moveable {
      public void pathBool(){
         this.ISPATH = !ISPATH;
      }
+     public void faceMe(Player facing){
+         TOKEN.teleport(faceLocation(TOKEN,facing.getEyeLocation()));
+     }
      public void sizeUp(){
       //   Slime sizer = TOKEN;
         switch(TOKEN.getType()){
          case SLIME:
             Slime sl = (Slime) TOKEN;
             sl.setSize(sl.getSize() + 1);
+            sl.setHealth(sl.getHealth() - 5);
          break;
          case PHANTOM:
             Phantom ph = (Phantom) TOKEN;
             ph.setSize(ph.getSize() + 1);
+            ph.setHealth(ph.getHealth() - 5);
          break;
          case MAGMA_CUBE:
             MagmaCube mc = (MagmaCube) TOKEN;
             mc.setSize(mc.getSize() + 1);
+            mc.setHealth(mc.getHealth() - 5);
          break;
          default:
             break;
@@ -62,14 +71,17 @@ public class Moveable {
             case SLIME:
                Slime sl = (Slime) TOKEN;
                sl.setSize(sl.getSize() - 1);
+               sl.setHealth(sl.getHealth() + 5);
             break;
             case PHANTOM:
                Phantom ph = (Phantom) TOKEN;
                ph.setSize(ph.getSize() - 1);
+               ph.setHealth(ph.getHealth() + 5);
             break;
             case MAGMA_CUBE:
                MagmaCube mc = (MagmaCube) TOKEN;
                mc.setSize(mc.getSize() - 1);
+               mc.setHealth(mc.getHealth() + 5);
             break;
             default:
                break;
@@ -96,6 +108,29 @@ public class Moveable {
       }
       else return false;
    }
+   public static Location faceLocation(LivingEntity entity, Location to) {
+      if (entity.getWorld() != to.getWorld()) {
+          return null;
+      }
+      Location fromLocation = entity.getEyeLocation();
+
+      double xDiff = to.getX() - fromLocation.getX();
+      double yDiff = to.getY() - fromLocation.getY();
+      double zDiff = to.getZ() - fromLocation.getZ();
+
+      double distanceXZ = Math.sqrt(xDiff * xDiff + zDiff * zDiff);
+      double distanceY = Math.sqrt(distanceXZ * distanceXZ + yDiff * yDiff);
+
+      double yaw = Math.toDegrees(Math.acos(xDiff / distanceXZ));
+      double pitch = Math.toDegrees(Math.acos(yDiff / distanceY)) - 90.0D;
+      if (zDiff < 0.0D) {
+          yaw += Math.abs(180.0D - yaw) * 2.0D;
+      }
+      Location loc = entity.getLocation();
+      loc.setYaw((float) (yaw - 90.0F));
+      loc.setPitch((float) (pitch));
+      return loc;
+  }
      //moveUp
      //moveDown
      //Attack Animation   swingMainHand()

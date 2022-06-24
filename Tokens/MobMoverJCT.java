@@ -36,6 +36,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.RayTraceResult;
 
 import jeffersondev.App;
+import jeffersondev.Utilities.MultiTool;
 
 
 public class MobMoverJCT implements CommandExecutor,Listener {
@@ -43,15 +44,19 @@ public class MobMoverJCT implements CommandExecutor,Listener {
     public MobMoverJCT(App app){
         this.app = app;
     }
-    ArrayList<Player> activeMovers = new ArrayList<>();
-    Map<Player, Moveable> movingMob = new HashMap<Player, Moveable>();
+    MultiTool toolBox = new MultiTool();
+    static ArrayList<Player> activeMovers = new ArrayList<>();
+    static Map<Player, Moveable> movingMob = new HashMap<Player, Moveable>();
+    public static void deRegister(Player player){
+        movingMob.remove(player);
+        activeMovers.remove(player);
+    }
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         Player p = ((Player) sender);
         if(!activeMovers.contains(p)){
             activeMovers.add(p);
-            ItemStack remote = matchItem();
-            p.getInventory().addItem(remote);
+            p.getInventory().addItem(toolBox.mobMover());
             p.sendMessage("Please Shift click a token to select");
         }
         else{
@@ -62,11 +67,7 @@ public class MobMoverJCT implements CommandExecutor,Listener {
         return true;
     }
     public ItemStack matchItem(){
-        ItemStack pointerItem = new ItemStack(Material.TOTEM_OF_UNDYING);
-        ItemMeta pointerMeta = pointerItem.getItemMeta();
-        pointerMeta.setDisplayName("Mover");
-        pointerItem.setItemMeta(pointerMeta); 
-
+        ItemStack pointerItem = toolBox.mobMover();
         return pointerItem;
     }
     @EventHandler
@@ -90,19 +91,13 @@ public class MobMoverJCT implements CommandExecutor,Listener {
             }
         }
     }
-    @EventHandler
-    public void onRightClick(PlayerInteractEvent e1) {
-        if (e1.getAction() == Action.RIGHT_CLICK_AIR || e1.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            Player p = e1.getPlayer();
-            if(movingMob.containsKey(p) && p.getInventory().getItemInMainHand().equals(matchItem()) && e1.getHand().equals(EquipmentSlot.HAND)) {
+    public static void fireMovement(Player e1) {
+            Player p = e1;
+            if(movingMob.containsKey(p)) {
                 if(p.isSneaking()){
-                    //do nothing now, need a new way of opening the frickin thing
-                    //will have to not use this heh
-                    //some other way/trigger to open a GUI
-                    e1.setCancelled(true);
+
                 }
                 else{
-                    e1.setCancelled(true);
                     //mode dependant
                     if (movingMob.get(p).isCursor() == true){
                         Location eyeLoc = p.getEyeLocation();
@@ -142,16 +137,12 @@ public class MobMoverJCT implements CommandExecutor,Listener {
             //RTX between point A and B, ifcanpath.
             //Or just teleport
         }
-        else if (e1.getAction() == Action.LEFT_CLICK_AIR || e1.getAction() == Action.LEFT_CLICK_BLOCK) {
-            Player p = e1.getPlayer();
-            if(movingMob.containsKey(p) && p.getInventory().getItemInMainHand().equals(matchItem()) && e1.getHand().equals(EquipmentSlot.HAND)) {
+        public void menu(Player p){
+            if(movingMob.containsKey(p)) {
                 if(p.isSneaking()){
-                    e1.setCancelled(true);
                     p.openInventory(remoteGui(p));
                 }
             }
-
-        }
     }
     public Inventory remoteGui(Player invoker){
         Inventory inv = Bukkit.createInventory(null, InventoryType.DISPENSER, "Mover Remote");
@@ -162,27 +153,14 @@ public class MobMoverJCT implements CommandExecutor,Listener {
         slotOne.setItemMeta(oneMeta); 
         inv.setItem(0, slotOne);
         //button 2
+        ItemStack slotTwo = new ItemStack(Material.COMPASS);
+        ItemMeta twoMeta = slotTwo.getItemMeta();
+        ArrayList<String> lookMe = new ArrayList<String>();
+        lookMe.add("Rotates the mob to face the player");
+        twoMeta.setDisplayName("Change Rotation");
+        slotTwo.setItemMeta(twoMeta); 
+        inv.setItem(1, slotTwo);
         //button 3
-        if (!movingMob.get(invoker).isPath()){
-            ItemStack metaInsert = new ItemStack(Material.NETHER_STAR);
-            ItemMeta threeMeta = metaInsert.getItemMeta();
-            ArrayList<String> movementType = new ArrayList<String>();
-            movementType.add("Teleport");
-            threeMeta.setDisplayName("Toggle Pathing Mode");
-            threeMeta.setLore(movementType);
-            metaInsert.setItemMeta(threeMeta);
-            inv.setItem(2, metaInsert);
-        }
-        else{
-            ItemStack metaInsert = new ItemStack(Material.LEATHER_BOOTS);
-            ItemMeta threeMeta = metaInsert.getItemMeta();
-            ArrayList<String> movementType = new ArrayList<String>();
-            movementType.add("Path");
-            threeMeta.setDisplayName("Toggle Pathing Mode");
-            threeMeta.setLore(movementType);
-            metaInsert.setItemMeta(threeMeta);
-            inv.setItem(2, metaInsert);
-        }
         //button 4
         ItemStack slotFour = new ItemStack(Material.RED_CONCRETE);
         ItemMeta fourMeta = slotFour.getItemMeta();
@@ -231,6 +209,7 @@ public class MobMoverJCT implements CommandExecutor,Listener {
             eightMeta.setDisplayName("Decrease size by 1");
             slotEight.setItemMeta(eightMeta); 
             inv.setItem(7, slotEight);
+            
         }
         //button 9
         //button 9 will be option to do group move, will have it's own collection
@@ -256,18 +235,11 @@ public class MobMoverJCT implements CommandExecutor,Listener {
                     movingMob.get(p).moveTo();
                     break;
                 case 1:
+                    movingMob.get(p).faceMe(p);
+                    p.sendMessage("It should have rotated");
+                    break;
                 case 2:
-                    if (movingMob.get(p).isPath()){
-                        movingMob.get(p).pathBool();
-                        p.openInventory(remoteGui(p));
-                        break;
-
-                    }
-                    else{
-                        movingMob.get(p).pathBool();
-                        p.openInventory(remoteGui(p));
-                        break;
-                    }
+                    break;
                 case 3:
                     movingMob.get(p).moveToB();
                     break;
@@ -294,10 +266,9 @@ public class MobMoverJCT implements CommandExecutor,Listener {
                     movingMob.get(p).sizeDown();
                     break;
                 case 8:
-
                     break;
-
-
+                default:
+                    p.sendMessage("Don't even worry, nothing dangerous happened");
             }
         }
     }

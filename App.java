@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import github.scarsz.discordsrv.DiscordSRV;
 import jeffersondev.SpellCasting.Grimoire;
 import jeffersondev.SpellCasting.Spellcaster;
 import jeffersondev.SpellCasting.Spellcomponent;
@@ -12,16 +13,20 @@ import jeffersondev.Tokens.Equipmentmanager;
 import jeffersondev.Tokens.Interact;
 import jeffersondev.Tokens.MobMoverJCT;
 import jeffersondev.Tokens.Mobicon;
+import jeffersondev.Utilities.Core;
+import jeffersondev.Utilities.DicerollListener;
 import jeffersondev.Utilities.LaserPointer;
-import jeffersondev.Utilities.PermissionGiver;
 import jeffersondev.Utilities.Ruler;
 import jeffersondev.Utilities.dmNotes;
 import jeffersondev.Utilities.initiative;
 public class App extends JavaPlugin {
+    private DicerollListener dicerollListener = new DicerollListener(this);
+    
     @Override
     public void onEnable() {
         Plugin plugin = Bukkit.getPluginManager().getPlugin("DMTools");
         File f = new File(plugin.getDataFolder() + "/");
+        DiscordSRV.api.subscribe(dicerollListener);
         if(!f.exists()){
             f.mkdir();
         }
@@ -70,13 +75,14 @@ public class App extends JavaPlugin {
         this.getCommand("mobmover").setExecutor(mobmover);
         getServer().getPluginManager().registerEvents(mobmover, this); 
 
-        PermissionGiver permissiongiver = new PermissionGiver(this);
-        this.getCommand("permissiongiver").setExecutor(permissiongiver);
-        getServer().getPluginManager().registerEvents(permissiongiver, this); 
+        Core systemCore = new Core(this);
+        this.getCommand("game").setExecutor(systemCore);
+        getServer().getPluginManager().registerEvents(systemCore, this); 
 
     }
     @Override
     public void onDisable() {
+        DiscordSRV.api.unsubscribe(dicerollListener);
         getLogger().info("Unloading DND Tools");
     }
 }

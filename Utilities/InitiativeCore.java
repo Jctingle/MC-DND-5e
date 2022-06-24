@@ -19,17 +19,20 @@ import org.bukkit.event.player.PlayerInteractEvent;
 
 import jeffersondev.App;
 
-public class InitiativeObj implements CommandExecutor,Listener {   
+public class InitiativeCore implements CommandExecutor,Listener {   
     private App app;
-    public InitiativeObj(App app){
+    public InitiativeCore(App app){
         this.app = app;
     }
     
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args){
         return true;
+        //this will mostly be the command argument handler, different cases will pass to the different methods within the objects.
+        //define with just /join <name> <number>
     }
     @EventHandler
     public void onRightClick(PlayerInteractEvent event){
+
     }
 }
