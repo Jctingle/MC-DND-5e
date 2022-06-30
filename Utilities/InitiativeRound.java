@@ -1,33 +1,207 @@
 package jeffersondev.Utilities;
 
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.scoreboard.Objective;
+import org.bukkit.scoreboard.Score;
+import org.bukkit.scoreboard.Scoreboard;
+import org.bukkit.scoreboard.ScoreboardManager;
+import org.bukkit.scoreboard.Team;
 
 public class InitiativeRound {
-    private HashMap<TurnHolder, Integer> playersHM = new HashMap<>();
-    private Integer currentTurnIndex = Integer.MAX_VALUE;
-    private TurnHolder currentTurner;
+    static TreeMap<Integer, ArrayList<TurnHolder>> initBlock = new TreeMap<>();
+    public Boolean joinable = false;
+    public Integer currentTurn;
+    MultiTool toolbox = new MultiTool();
+    ItemStack endTurnItem = toolbox.endTurn();
+    HashMap<Player, Integer> multiTurnHandler = new HashMap<>();
+
     //Pass in and store the scoreboard manager
      InitiativeRound(){
-         
      }
      public void startJoinableRound(){
-
+      joinable = true;
      }
      public void joinRound(TurnHolder joiner){
+      final Objective objecteye = InitiativeCore.board.getObjective("initiative");
+      if (joinable == true){
+         //some stuff here to handle late joiners
+         if(initBlock.keySet().contains(joiner.getRoll())){
+            ArrayList<TurnHolder> cacheArray = initBlock.get(joiner.getRoll());
+            cacheArray.add(joiner);
+            initBlock.replace(joiner.getRoll(), cacheArray);
+            Score score = objecteye.getScore(joiner.getName());
+            score.setScore(joiner.getRoll());
+
+         }
+         else{
+            ArrayList<TurnHolder> cacheArray = new ArrayList<TurnHolder>();
+            cacheArray.add(joiner);
+            initBlock.put(joiner.getRoll(), cacheArray);
+            Score score = objecteye.getScore(joiner.getName());
+            score.setScore(joiner.getRoll());
+         }
+      }
+
         //this will handle both timely and late joiners
+        //just an if that can check the overall Core for an active game
      }
-     public void whoseTurnNext(){
-        //will be changed from void to a TurnHolder slash Player return value
-     }
-     public void startRound(){
+   public void cycleRound(){
+      //sets the initblock to the "first value"
+      currentTurn = initBlock.lastEntry().getKey();
+   }
+   public void nextKey(){
+      if (initBlock.lowerEntry(currentTurn) == null){
+         cycleRound();
+      }
+      else{
+         currentTurn = initBlock.lowerEntry(currentTurn).getKey();
+      }
+      //do some null checking here, if null then try to pass cycleRound
+   }
+   public void purgeIndex(Integer Key){
+      initBlock.remove(Key);
+   }
+   public void purgeIndexMember(Integer Key, TurnHolder killer){
+      ArrayList<TurnHolder> cleaner = initBlock.get(Key);
+      cleaner.remove(killer);
+      if(cleaner.size() > 0){
+         initBlock.replace(Key, cleaner);
+      }
+      else{
+         purgeIndex(Key);
+      }
 
-     }
-     public void nextTurn(){
+   }
+   public void currentTurnItemDelivery(){
+      //this goes through every TurnHolder object within the same initiative Block;
+      for(TurnHolder EntryMember: initBlock.get(currentTurn)){
+         // if(!EntryMember.hasTakenTurn()){
+            if(!EntryMember.getOwner().getInventory().contains(endTurnItem)){
+               EntryMember.getOwner().getInventory().addItem(endTurnItem);
+            }
+         // }
+      }
+   }
+   public void endOfTurnCleanup(){
+      multiTurnHandler.clear();
+      for(TurnHolder EntryMember: initBlock.get(currentTurn)){
+         EntryMember.setNormal();
+      }
+   }
+   public void startOfTurnSetup(){
+      if(initBlock.get(currentTurn).size() > 1){
+         for(TurnHolder EntryMember: initBlock.get(currentTurn)){
+            EntryMember.getOwner().sendTitle("Your Turn", "Please make your move.", 1, 20, 1);
+            EntryMember.setActive();
+            if (multiTurnHandler.containsKey(EntryMember.getOwner())){
+               multiTurnHandler.replace(EntryMember.getOwner(), multiTurnHandler.get(EntryMember.getOwner()) + 1);
+            }
+            else{
+               multiTurnHandler.put(EntryMember.getOwner(), 1);
+            }
+         }
+      }
+      //just a simple turn
+      else{
+         TurnHolder EntryMember = initBlock.get(currentTurn).get(0);
+         EntryMember.setActive();
+         EntryMember.getOwner().sendTitle("Your Turn", "Please make your move.", 1, 20, 1);
+      }
+      currentTurnItemDelivery();
+   }
+   public void tryKill(String name){
+      
+      for(TurnHolder pickMe : allCurrentTurns()){
+         if(pickMe.getName().equals(name)){
+            TurnHolder EntryMember = pickMe;
+            if(EntryMember.isActive() && initBlock.get(EntryMember.getRoll()).size() > 1){
+               EntryMember.setNormal();
+               EntryMember.setDead();
+               purgeIndexMember(EntryMember.getRoll(),EntryMember);
+               //no item collection here, what do I need to do:
+               if(multiTurnHandler.get(EntryMember.getOwner()) > 1){
+                  multiTurnHandler.put(EntryMember.getOwner(), multiTurnHandler.get(EntryMember.getOwner()) - 1);
+                  //do nothing
+               }
+               else{
+                  multiTurnHandler.remove(EntryMember.getOwner());
+                  EntryMember.getOwner().getInventory().remove(endTurnItem);
+                  if(multiTurnHandler.size() == 0){
+                     endOfTurnCleanup();
+                     nextKey();
+                     startOfTurnSetup();
+                  }
+               }
+            }
+            //if name is just currently active
+            else if(EntryMember.isActive() && initBlock.get(EntryMember.getRoll()).size() == 1){
+               EntryMember.getOwner().getInventory().remove(endTurnItem);
+               purgeIndexMember(EntryMember.getRoll(),EntryMember);
+               EntryMember.setNormal();
+               EntryMember.setDead();
+               nextKey();
+               startOfTurnSetup();
+            }
+            //if name is just some a normal guy
+            else{
+               purgeIndexMember(EntryMember.getRoll(),EntryMember);
+               EntryMember.setDead();
+            }
+         }
+      }
+      //if name is currently active and in a multi-turn
 
-     }
+   }
+   public void startFirstRound(){
+      cycleRound();
+      startOfTurnSetup();
+   }
+   //THIS IS THE BIG BOY LOGIC HANDLER
+   public void rightClickBridge(Player tagger){
+      //check if the multiple turn flag has been activated for this current round
+      if(multiTurnHandler.size() > 0){
+         multiTurnHandler.put(tagger, multiTurnHandler.get(tagger) - 1);
+         if(multiTurnHandler.values().contains(0) && multiTurnHandler.get(tagger) == 0){
+            multiTurnHandler.remove(tagger);
+            tagger.getInventory().remove(endTurnItem);
+            if(multiTurnHandler.size() > 0){
+               //do nothing
+            }
+            else{
+               endOfTurnCleanup();
+               nextKey();
+               startOfTurnSetup();
+            }
+         }
+      }
+      else{
+         tagger.getInventory().remove(endTurnItem);
+         endOfTurnCleanup();
+         nextKey();
+         startOfTurnSetup();
+      }
+   }
+   public static ArrayList<TurnHolder> allCurrentTurns(){
+      ArrayList<TurnHolder> everyOne = new ArrayList<TurnHolder>();
+      for(ArrayList<TurnHolder> values : initBlock.values()){
+         everyOne.addAll(values);
+      }
+      return everyOne;
+   }
+   public static ArrayList<String> returnAllNames(){
+      ArrayList<String> names = new ArrayList<String>();
+      for(TurnHolder turnA : allCurrentTurns()){
+         names.add(turnA.getName());
+      }
+      return names;
+   }
 }

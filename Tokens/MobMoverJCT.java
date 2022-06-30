@@ -10,27 +10,13 @@ import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.RayTraceResult;
@@ -39,57 +25,32 @@ import jeffersondev.App;
 import jeffersondev.Utilities.MultiTool;
 
 
-public class MobMoverJCT implements CommandExecutor,Listener {
+public class MobMoverJCT{
     private App app;
     public MobMoverJCT(App app){
         this.app = app;
     }
     MultiTool toolBox = new MultiTool();
-    static ArrayList<Player> activeMovers = new ArrayList<>();
     static Map<Player, Moveable> movingMob = new HashMap<Player, Moveable>();
     public static void deRegister(Player player){
-        movingMob.remove(player);
-        activeMovers.remove(player);
-    }
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        Player p = ((Player) sender);
-        if(!activeMovers.contains(p)){
-            activeMovers.add(p);
-            p.getInventory().addItem(toolBox.mobMover());
-            p.sendMessage("Please Shift click a token to select");
-        }
-        else{
-            activeMovers.remove(p);
-            ItemStack remote = matchItem();
-            p.getInventory().removeItem(remote);
-        }
-        return true;
+        movingMob.remove(player);;
     }
     public ItemStack matchItem(){
         ItemStack pointerItem = toolBox.mobMover();
         return pointerItem;
     }
-    @EventHandler
-    public void onRightClick(PlayerInteractEntityEvent e1) {
-        Player p = e1.getPlayer();
-            if(activeMovers.contains(p) && p.getInventory().getItemInMainHand().equals(matchItem()) && e1.getHand().equals(EquipmentSlot.HAND)){
+    public static void onRightClickBody(Player p, LivingEntity clickedMob) {
                 if(p.isSneaking()){
-                    e1.setCancelled(true);
-                    LivingEntity clickedMob = (LivingEntity) e1.getRightClicked();
                     if(clickedMob.getScoreboardTags().contains("token")){
                         Moveable mover = new Moveable(clickedMob, clickedMob.getLocation(), false);
                         movingMob.put(p, mover);
                         p.sendMessage(clickedMob.getName() + " Selected, you can now right click a destination, or shift left click to open the menu");
                         //create new moveable object, store inside hashmap, reference object and helper methods
                     }
-                //if sneaking open menu to do shit
-                //menu options
-                //up 1 block
-                //down one block
-                //activate Pathing mode vs activating whatever mode, the method that returns an Inventory will have conditionals for the construction, maybe make a pre-defined remote object?
+                else{
+                    menu(p);
+                }
             }
-        }
     }
     public static void fireMovement(Player e1) {
             Player p = e1;
@@ -137,14 +98,14 @@ public class MobMoverJCT implements CommandExecutor,Listener {
             //RTX between point A and B, ifcanpath.
             //Or just teleport
         }
-        public void menu(Player p){
+    public static void menu(Player p){
             if(movingMob.containsKey(p)) {
                 if(p.isSneaking()){
                     p.openInventory(remoteGui(p));
                 }
             }
     }
-    public Inventory remoteGui(Player invoker){
+    public static Inventory remoteGui(Player invoker){
         Inventory inv = Bukkit.createInventory(null, InventoryType.DISPENSER, "Mover Remote");
         //button 1
         ItemStack slotOne = new ItemStack(Material.LIME_CONCRETE);
@@ -276,14 +237,6 @@ public class MobMoverJCT implements CommandExecutor,Listener {
     public void onInventoryClick(final InventoryDragEvent e) {
         if (!e.getView().getTitle().equals("Mover Remote")) return;
         else{
-            e.setCancelled(true);
-        }
-    }
-    @EventHandler
-    public void onItemDrop(final PlayerDropItemEvent e) {
-        if (e.getItemDrop() != matchItem()) return;
-        else{
-            activeMovers.remove(e.getPlayer());
             e.setCancelled(true);
         }
     }

@@ -4,6 +4,7 @@ import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.*;
 import jeffersondev.App;
 import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
@@ -39,11 +40,13 @@ public class DicerollListener {
             int initiativeRoll = Integer.valueOf(totalStringed);
             TextComponent hoverable = new TextComponent("Initiative Roll of: [" + totalStringed + "]");
             hoverable.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click here to use this roll in an active initiative round")));
+
             //future clickable event;
             
             // Bukkit.broadcastMessage(new BaseComponent[]{hoverable});
             for (Player p : Core.getCharacters().keySet()){
                 if (output.contains(Core.getCharacters().get(p))){
+                    hoverable.setClickEvent(new ClickEvent(ClickEvent.Action.RUN_COMMAND, "/combat join " + Core.getCharacters().get(p) + " " + totalStringed));
                     p.spigot().sendMessage(hoverable);
                 }
             }

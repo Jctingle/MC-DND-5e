@@ -11,14 +11,19 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 public class MultiTool {
-  private ArrayList<ItemStack> allItems = new ArrayList<ItemStack>();
+  private  ArrayList<ItemStack> allItems = new ArrayList<ItemStack>();
   public List<String> loreTag = new ArrayList<String>(){{add("5ETool");}};
+  private ArrayList<ItemStack> boxItems = new ArrayList<ItemStack>();
      public MultiTool(){
       allItems.add(this.laserPointer()); 
-      allItems.add(this.mobMover()); 
-      allItems.add(this.grimoire()); 
+      allItems.add(this.mobMover()); ; 
       allItems.add(this.ruler()); 
-      allItems.add(this.endTurn());
+      allItems.add(this.endTurn()); 
+      allItems.add(this.grimoire()); 
+
+      boxItems.add(this.laserPointer()); 
+      boxItems.add(this.mobMover()); ; 
+      boxItems.add(this.ruler()); 
      }
      public ItemStack laserPointer(){
       ItemStack pointerItem = new ItemStack(Material.AMETHYST_SHARD);
@@ -73,6 +78,9 @@ public class MultiTool {
       if (player.getInventory().contains(plucker)){
         player.getInventory().remove(plucker);
       }
+   }
+   public ArrayList<ItemStack> returnAllItems(){
+    return this.boxItems;
    }
    //example use MultiTool.purgePlayerOfSingleTools(Player, MultiTool.ruler());
 }

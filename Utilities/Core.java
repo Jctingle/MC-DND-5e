@@ -13,6 +13,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -47,15 +48,17 @@ public class Core implements CommandExecutor,Listener {
         if(sender instanceof Player){
             if (!activePlayers.containsKey(sender)){
                 //this only needs to be called once per player ever, assuming no directory restart.
-                //calling it again would just overwrite it.
+                //calling it again would just overwrite it. though it may not even work at all
                 Player p = ((Player) sender);
                 String playerName = args[0];
                 activePlayers.put(p,playerName);
                 Gamer playerGamer = new Gamer(p,playerName);
                 save("plugins/DMTools/" + p.getName() +".gamer", playerGamer);
+                p.sendMessage("Joined the Game as " + playerName);
                 return true;
             }
             else{
+                //if statements for potential alternate entry points to the Initiative system?
                 return true;
             }
         }
@@ -79,6 +82,8 @@ public class Core implements CommandExecutor,Listener {
         //deregister from any plugin roster players
         activePlayers.remove(e.getPlayer());
         MobMoverJCT.deRegister(e.getPlayer());
+        //save cache of the player object which will also contain their spell grimoire.
+        //spellcasting will be cleaned up
     }
     public static Boolean isGamer(Player p){
         if(activePlayers.containsKey(p)) return true;
@@ -102,10 +107,12 @@ public class Core implements CommandExecutor,Listener {
                         Ruler.RightClickEntity(e.getPlayer(), e.getRightClicked());
                         break;
                     case "Mover":
+                        MobMoverJCT.onRightClickBody(e.getPlayer(), (LivingEntity) e.getRightClicked());
                         break;
                     case "Grimoire":
                         break;
                     case "Laser Pointer":
+                        LaserPointer.handleRightClickEntity(e.getPlayer(),(LivingEntity) e.getRightClicked());
                         break;
                     default:
                         break;
@@ -133,15 +140,19 @@ public class Core implements CommandExecutor,Listener {
                     case "Grimoire":
                         break;
                     case "Laser Pointer":
+                        LaserPointer.handleRightClick(e.getPlayer());
                         break;
                     case "End Turn":
+                    //couple of events will happen here, going to fire a method from initiativeCore
+                        InitiativeCore.HandleRightClick(e.getPlayer());
                         break;
                     }
 
                 }
-                }
+            }
         }
     }
+    //FILE SAVING ABILITIES
     public static <T extends Serializable> boolean save(String filePath, T object) {
         try {
             BukkitObjectOutputStream out = new BukkitObjectOutputStream(new GZIPOutputStream(new FileOutputStream(filePath)));
@@ -152,7 +163,6 @@ public class Core implements CommandExecutor,Listener {
             return false;
         }
     }
-    //code to import spell data from storage
     public static <T extends Serializable> T load(String filePath){
         try {
             BukkitObjectInputStream in = new BukkitObjectInputStream(new GZIPInputStream(new FileInputStream(filePath)));
