@@ -4,10 +4,12 @@ import java.text.DecimalFormat;
 import java.util.HashMap;
 
 import org.bukkit.Location;
+import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
 
 import jeffersondev.App;
 
@@ -20,12 +22,27 @@ public class Ruler{
     }
     // ArrayList<Player> activeUsers = new ArrayList<>();
     static HashMap<Player, Location> playerMeasure = new HashMap<>();
+    public static void deRegister(Player p){
+        playerMeasure.remove(p);
+    }
     //right click a block :)
     public static void rightClickRTX(Player p) {
                 RayTraceResult rtx = p.getWorld().rayTraceBlocks(p.getEyeLocation(), p.getEyeLocation().getDirection(), 100);
                 if (rtx != null){
+                    
                     Location pSpot = rtx.getHitPosition().toLocation(p.getWorld());
                     if(playerMeasure.containsKey(p)){
+                        Particle importParticle = Particle.END_ROD;
+                        double pointsPerLine = (playerMeasure.get(p).distance(pSpot)) * 4.0;
+                        double d = playerMeasure.get(p).distance(pSpot) / pointsPerLine;
+                        for (int i = 0; i < pointsPerLine; i++) {
+                            Location l = playerMeasure.get(p).clone();
+                            Vector direction = pSpot.toVector().subtract(playerMeasure.get(p).toVector()).normalize();
+                            Vector v = direction.multiply(i * d);
+                            l.add(v.getX(), v.getY(), v.getZ());
+                            playerMeasure.get(p).getWorld().spawnParticle(importParticle, l, 0, 0, 0, 0, 0.05);
+                            //for secondary travel particle, put other one here
+                        }
                         Double distance = playerMeasure.get(p).distance(pSpot) * 3.0;
                         DecimalFormat df = new DecimalFormat("#.#"); 
                         String distanceString  = df.format(distance).toString();
@@ -34,7 +51,7 @@ public class Ruler{
                     }
                     else{
                         playerMeasure.put(p, pSpot);
-                        p.sendMessage("Point One Chosen");
+                        p.sendMessage("Point One Chosen, please select a location within 30 seconds");
                     }
                 }
                 else{
@@ -45,9 +62,21 @@ public class Ruler{
                 Location pSpot = rightClicked.getLocation();      
                 pSpot.add(0.0, rightClicked.getHeight()/2, 0.0);
                 if(playerMeasure.containsKey(p)){
+                    Particle importParticle = Particle.TOTEM;
+                    double pointsPerLine = (playerMeasure.get(p).distance(pSpot)) * 4.0;
+                    double d = playerMeasure.get(p).distance(pSpot) / pointsPerLine;
+                    for (int i = 0; i < pointsPerLine; i++) {
+                        Location l = playerMeasure.get(p).clone();
+                        Vector direction = pSpot.toVector().subtract(playerMeasure.get(p).toVector()).normalize();
+                        Vector v = direction.multiply(i * d);
+                        l.add(v.getX(), v.getY(), v.getZ());
+                        playerMeasure.get(p).getWorld().spawnParticle(importParticle, l, 0, 0, 0, 0, 0.05);
+                        //for secondary travel particle, put other one here
+                    }
                     Double distance = playerMeasure.get(p).distance(rightClicked.getLocation()) * 3.0;
                     DecimalFormat df = new DecimalFormat("#.#"); 
                     String distanceString  = df.format(distance).toString();
+                    
                     p.sendMessage("The distance is " + distanceString);
                     playerMeasure.remove(p);
                 }

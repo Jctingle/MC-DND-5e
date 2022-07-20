@@ -17,7 +17,7 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
 public class InitiativeRound {
-    static TreeMap<Integer, ArrayList<TurnHolder>> initBlock = new TreeMap<>();
+    private TreeMap<Integer, ArrayList<TurnHolder>> initBlock;
     public Boolean joinable = false;
     public Integer currentTurn;
     MultiTool toolbox = new MultiTool();
@@ -26,6 +26,7 @@ public class InitiativeRound {
 
     //Pass in and store the scoreboard manager
      InitiativeRound(){
+      this.initBlock = new TreeMap<Integer, ArrayList<TurnHolder>>();
      }
      public void startJoinableRound(){
       joinable = true;
@@ -34,10 +35,10 @@ public class InitiativeRound {
       final Objective objecteye = InitiativeCore.board.getObjective("initiative");
       if (joinable == true){
          //some stuff here to handle late joiners
-         if(initBlock.keySet().contains(joiner.getRoll())){
-            ArrayList<TurnHolder> cacheArray = initBlock.get(joiner.getRoll());
+         if(this.initBlock.keySet().contains(joiner.getRoll())){
+            ArrayList<TurnHolder> cacheArray = this.initBlock.get(joiner.getRoll());
             cacheArray.add(joiner);
-            initBlock.replace(joiner.getRoll(), cacheArray);
+            this.initBlock.replace(joiner.getRoll(), cacheArray);
             Score score = objecteye.getScore(joiner.getName());
             score.setScore(joiner.getRoll());
 
@@ -45,7 +46,7 @@ public class InitiativeRound {
          else{
             ArrayList<TurnHolder> cacheArray = new ArrayList<TurnHolder>();
             cacheArray.add(joiner);
-            initBlock.put(joiner.getRoll(), cacheArray);
+            this.initBlock.put(joiner.getRoll(), cacheArray);
             Score score = objecteye.getScore(joiner.getName());
             score.setScore(joiner.getRoll());
          }
@@ -56,25 +57,25 @@ public class InitiativeRound {
      }
    public void cycleRound(){
       //sets the initblock to the "first value"
-      currentTurn = initBlock.lastEntry().getKey();
+      currentTurn = this.initBlock.lastEntry().getKey();
    }
    public void nextKey(){
-      if (initBlock.lowerEntry(currentTurn) == null){
+      if (this.initBlock.lowerEntry(currentTurn) == null){
          cycleRound();
       }
       else{
-         currentTurn = initBlock.lowerEntry(currentTurn).getKey();
+         currentTurn = this.initBlock.lowerEntry(currentTurn).getKey();
       }
       //do some null checking here, if null then try to pass cycleRound
    }
    public void purgeIndex(Integer Key){
-      initBlock.remove(Key);
+      this.initBlock.remove(Key);
    }
    public void purgeIndexMember(Integer Key, TurnHolder killer){
-      ArrayList<TurnHolder> cleaner = initBlock.get(Key);
+      ArrayList<TurnHolder> cleaner = this.initBlock.get(Key);
       cleaner.remove(killer);
       if(cleaner.size() > 0){
-         initBlock.replace(Key, cleaner);
+         this.initBlock.replace(Key, cleaner);
       }
       else{
          purgeIndex(Key);
@@ -83,7 +84,7 @@ public class InitiativeRound {
    }
    public void currentTurnItemDelivery(){
       //this goes through every TurnHolder object within the same initiative Block;
-      for(TurnHolder EntryMember: initBlock.get(currentTurn)){
+      for(TurnHolder EntryMember: this.initBlock.get(currentTurn)){
          // if(!EntryMember.hasTakenTurn()){
             if(!EntryMember.getOwner().getInventory().contains(endTurnItem)){
                EntryMember.getOwner().getInventory().addItem(endTurnItem);
@@ -93,13 +94,13 @@ public class InitiativeRound {
    }
    public void endOfTurnCleanup(){
       multiTurnHandler.clear();
-      for(TurnHolder EntryMember: initBlock.get(currentTurn)){
+      for(TurnHolder EntryMember: this.initBlock.get(currentTurn)){
          EntryMember.setNormal();
       }
    }
    public void startOfTurnSetup(){
-      if(initBlock.get(currentTurn).size() > 1){
-         for(TurnHolder EntryMember: initBlock.get(currentTurn)){
+      if(this.initBlock.get(currentTurn).size() > 1){
+         for(TurnHolder EntryMember: this.initBlock.get(currentTurn)){
             EntryMember.getOwner().sendTitle("Your Turn", "Please make your move.", 1, 20, 1);
             EntryMember.setActive();
             if (multiTurnHandler.containsKey(EntryMember.getOwner())){
@@ -112,7 +113,7 @@ public class InitiativeRound {
       }
       //just a simple turn
       else{
-         TurnHolder EntryMember = initBlock.get(currentTurn).get(0);
+         TurnHolder EntryMember = this.initBlock.get(currentTurn).get(0);
          EntryMember.setActive();
          EntryMember.getOwner().sendTitle("Your Turn", "Please make your move.", 1, 20, 1);
       }
@@ -123,7 +124,7 @@ public class InitiativeRound {
       for(TurnHolder pickMe : allCurrentTurns()){
          if(pickMe.getName().equals(name)){
             TurnHolder EntryMember = pickMe;
-            if(EntryMember.isActive() && initBlock.get(EntryMember.getRoll()).size() > 1){
+            if(EntryMember.isActive() && this.initBlock.get(EntryMember.getRoll()).size() > 1){
                EntryMember.setNormal();
                EntryMember.setDead();
                purgeIndexMember(EntryMember.getRoll(),EntryMember);
@@ -143,7 +144,7 @@ public class InitiativeRound {
                }
             }
             //if name is just currently active
-            else if(EntryMember.isActive() && initBlock.get(EntryMember.getRoll()).size() == 1){
+            else if(EntryMember.isActive() && this.initBlock.get(EntryMember.getRoll()).size() == 1){
                EntryMember.getOwner().getInventory().remove(endTurnItem);
                purgeIndexMember(EntryMember.getRoll(),EntryMember);
                EntryMember.setNormal();
@@ -190,14 +191,14 @@ public class InitiativeRound {
          startOfTurnSetup();
       }
    }
-   public static ArrayList<TurnHolder> allCurrentTurns(){
+   public ArrayList<TurnHolder> allCurrentTurns(){
       ArrayList<TurnHolder> everyOne = new ArrayList<TurnHolder>();
-      for(ArrayList<TurnHolder> values : initBlock.values()){
+      for(ArrayList<TurnHolder> values : this.initBlock.values()){
          everyOne.addAll(values);
       }
       return everyOne;
    }
-   public static ArrayList<String> returnAllNames(){
+   public ArrayList<String> returnAllNames(){
       ArrayList<String> names = new ArrayList<String>();
       for(TurnHolder turnA : allCurrentTurns()){
          names.add(turnA.getName());

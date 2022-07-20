@@ -35,10 +35,6 @@ public class App extends JavaPlugin {
         dmNotes notery = new dmNotes(this);
         this.getCommand("dnote").setExecutor(notery);
         getServer().getPluginManager().registerEvents(notery, this);
-
-        // initiative innit = new initiative(this);
-        // this.getCommand("init").setExecutor(innit);
-        // getServer().getPluginManager().registerEvents(innit, this);
         
         Mobicon mobi = new Mobicon(this);
         this.getCommand("mobi").setExecutor(mobi);

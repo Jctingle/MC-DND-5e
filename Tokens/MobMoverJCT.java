@@ -39,24 +39,36 @@ public class MobMoverJCT{
         ItemStack pointerItem = toolBox.mobMover();
         return pointerItem;
     }
-    public static void onRightClickBody(Player p, LivingEntity clickedMob) {
-                if(p.isSneaking()){
-                    if(clickedMob.getScoreboardTags().contains("token")){
-                        Moveable mover = new Moveable(clickedMob, clickedMob.getLocation(), false);
-                        movingMob.put(p, mover);
-                        p.sendMessage(clickedMob.getName() + " Selected, you can now right click a destination, or shift left click to open the menu");
-                        //create new moveable object, store inside hashmap, reference object and helper methods
-                    }
-                else{
-                    menu(p);
-                }
-            }
+    // public static void onRightClickBody(Player p, LivingEntity clickedMob) {
+    //             if(p.isSneaking()){
+    //                 if(clickedMob.getScoreboardTags().contains("token")){
+    //                     Moveable mover = new Moveable(clickedMob, clickedMob.getLocation(), false);
+    //                     movingMob.put(p, mover);
+    //                     p.sendMessage(clickedMob.getName() + " Selected, you can now right click a destination, or shift left click to open the menu");
+    //                 }
+    //             }
+    // }
+    public static void RTXEntitySelect(Player p) {
+        Location eyeLoc = p.getEyeLocation();
+        World world = p.getWorld();
+        Double maxDistance = 100.0;
+        RayTraceResult rtxResult = world.rayTraceEntities(eyeLoc, eyeLoc.getDirection(), maxDistance, 0.1, (entity) -> (entity.getScoreboardTags().contains("token")));
+        LivingEntity clickedMob = (LivingEntity) rtxResult.getHitEntity();
+        if(rtxResult != null){
+            Moveable mover = new Moveable(clickedMob, clickedMob.getLocation(), false);
+            movingMob.put(p, mover);
+            p.sendMessage(clickedMob.getName() + " Selected, you can now right click a destination, or shift left click to open the menu");
+        }
+    }
+    public static Moveable returnMovingMob(Player p){
+        Moveable returner = movingMob.get(p);
+        return returner;
     }
     public static void fireMovement(Player e1) {
             Player p = e1;
             if(movingMob.containsKey(p)) {
                 if(p.isSneaking()){
-
+                    menu(p);
                 }
                 else{
                     //mode dependant
@@ -101,6 +113,9 @@ public class MobMoverJCT{
     public static void menu(Player p){
             if(movingMob.containsKey(p)) {
                 if(p.isSneaking()){
+                    p.openInventory(remoteGui(p));
+                }
+                else if(p.getOpenInventory().getTitle().equals("Mover Remote")){
                     p.openInventory(remoteGui(p));
                 }
             }
@@ -182,66 +197,4 @@ public class MobMoverJCT{
         //mount
         return inv;
     }
-    @EventHandler
-    public void onInventoryClick(final InventoryClickEvent e) {
-        if (!e.getView().getTitle().equals("Mover Remote")) return;
-        else{
-            Integer buttonClicked = e.getRawSlot();
-            e.setCancelled(true);
-            Player p = Bukkit.getPlayer(e.getWhoClicked().getName());
-            // p.sendMessage("click registered");
-            // p.sendMessage(buttonClicked.toString());
-            switch (buttonClicked){
-                case 0:
-                    movingMob.get(p).moveTo();
-                    break;
-                case 1:
-                    movingMob.get(p).faceMe(p);
-                    p.sendMessage("It should have rotated");
-                    break;
-                case 2:
-                    break;
-                case 3:
-                    movingMob.get(p).moveToB();
-                    break;
-
-                case 4:
-                if (movingMob.get(p).isCursor()){
-                    movingMob.get(p).cursorBool();
-                    p.openInventory(remoteGui(p));
-                    break;
-
-                }
-                else{
-                    movingMob.get(p).cursorBool();
-                    p.openInventory(remoteGui(p));
-                    break;
-                }
-                case 5:
-                    movingMob.get(p).swingArm();
-                    break;
-                case 6:
-                        movingMob.get(p).sizeUp();
-                    break;
-                case 7:
-                    movingMob.get(p).sizeDown();
-                    break;
-                case 8:
-                    break;
-                default:
-                    p.sendMessage("Don't even worry, nothing dangerous happened");
-            }
-        }
-    }
-    @EventHandler
-    public void onInventoryClick(final InventoryDragEvent e) {
-        if (!e.getView().getTitle().equals("Mover Remote")) return;
-        else{
-            e.setCancelled(true);
-        }
-    }
-    //playerquit event too
-    //GUI Code, remote control in a 3x3?
-    //new crafting-menu? IDK what else the 3x3 interface is a part of.
-    //check the different interface types ore the different inventories
 }

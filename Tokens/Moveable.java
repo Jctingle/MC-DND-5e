@@ -1,24 +1,20 @@
 package jeffersondev.Tokens;
 
 import org.bukkit.Location;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Phantom;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
-import org.bukkit.util.Vector;
 
 public class Moveable {
     private LivingEntity TOKEN;
-    private Location STARTLOCATION;
     private Boolean ISPATH;
     private boolean CURSORMOVEMENT = false;
     // private Boolean ISMOUNTED;
      Moveable(LivingEntity token, Location currentLoc, Boolean isPath/*, Boolean isMounted*/){
         this.TOKEN = token;
-        this.STARTLOCATION = currentLoc;
         this.ISPATH = isPath;
         // this.ISMOUNTED = isMounted;
      }
@@ -43,6 +39,9 @@ public class Moveable {
      public void faceMe(Player facing){
          TOKEN.teleport(faceLocation(TOKEN,facing.getEyeLocation()));
      }
+     public void faceAway(Player facing){
+      TOKEN.teleport(faceLocation(TOKEN,facing.getEyeLocation()));
+  }
      public void sizeUp(){
       //   Slime sizer = TOKEN;
         switch(TOKEN.getType()){

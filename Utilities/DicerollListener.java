@@ -3,20 +3,19 @@ package jeffersondev.Utilities;
 import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.*;
 import jeffersondev.App;
-import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.Location;
-import org.bukkit.World;
-import org.bukkit.block.Block;
+import org.bukkit.entity.Firework;
 import org.bukkit.entity.Player;
-
+import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Color;
+import org.bukkit.FireworkEffect;
+import org.bukkit.FireworkEffect.Type;
 
 public class DicerollListener {
 
@@ -56,6 +55,18 @@ public class DicerollListener {
             String ShortenStringed = output.substring(totalIndex + 8);
             e.setCancelled(true);
             Bukkit.broadcastMessage(ChatColor.DARK_RED + ShortenStringed);
+            if (ShortenStringed.contains("**20**")){
+                for (Player p : Core.getCharacters().keySet()){
+                    if (output.contains(Core.getCharacters().get(p))){
+                        Firework firework = p.getWorld().spawn(p.getLocation(), Firework.class);
+                        FireworkMeta meta = (FireworkMeta) firework.getFireworkMeta();
+                        meta.addEffect(FireworkEffect.builder().withColor(Color.RED).withColor(Color.WHITE).with(Type.BALL_LARGE).withFlicker().build());
+                        meta.setPower(1);
+                        firework.setFireworkMeta(meta);
+                    }
+                }
+            }
+
         }
 
     }    

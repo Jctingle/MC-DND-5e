@@ -98,7 +98,7 @@ public class InitiativeCore implements CommandExecutor,Listener {
                     p.setScoreboard(manager.getNewScoreboard());
                 }
                 //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@scoreboard stuff here@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                activeRounds.remove(0);
+                activeRounds.clear();
                 activeRound = false;
                 return true;
             }
@@ -126,7 +126,7 @@ public class InitiativeCore implements CommandExecutor,Listener {
         activeRounds.get(0).rightClickBridge(flagger);
     }
     public void initiateScoreBoard(){
-        final Objective objecteye = board.registerNewObjective("initiative", "dummy", "initiative", RenderType.INTEGER);
+        Objective objecteye = board.registerNewObjective("initiative", "dummy", "initiative", RenderType.INTEGER);
         objecteye.setDisplaySlot(DisplaySlot.SIDEBAR);
 
         Team activeUnit = board.registerNewTeam("active");
@@ -135,7 +135,7 @@ public class InitiativeCore implements CommandExecutor,Listener {
         deadUnit.setColor(ChatColor.BLACK);
     }
     public void clearScoreBoard(){
-        final Objective objecteye = board.getObjective("initiative");
+        Objective objecteye = board.getObjective("initiative");
         objecteye.unregister();
         Team activeUnit = board.getTeam("active");
         Team deadUnit = board.getTeam("dead");
