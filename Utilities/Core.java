@@ -18,6 +18,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.player.PlayerInteractEntityEvent;
@@ -179,6 +180,7 @@ public class Core implements CommandExecutor,Listener {
                     case "Ruler":
                         break;
                     case "Mover":
+                        MobMoverJCT.menu(e.getPlayer());
                         break;
                     case "Grimoire":
                         break;
@@ -192,7 +194,6 @@ public class Core implements CommandExecutor,Listener {
             }
         }
     }
-    @EventHandler
     //FILE SAVING ABILITIES
     public static <T extends Serializable> boolean save(String filePath, T object) {
         try {
@@ -231,6 +232,7 @@ public class Core implements CommandExecutor,Listener {
                     MobMoverJCT.returnMovingMob(p).faceMe(p);
                     break;
                 case 2:
+                    MobMoverJCT.returnMovingMob(p).faceAway(p);
                     break;
                 case 3:
                     MobMoverJCT.returnMovingMob(p).moveToB();
@@ -258,6 +260,10 @@ public class Core implements CommandExecutor,Listener {
                     MobMoverJCT.returnMovingMob(p).sizeDown();
                     break;
                 case 8:
+                    MobMoverJCT.returnMovingMob(p).toggleGrowth();
+                    break;
+                case 9:
+                    MobMoverJCT.returnMovingMob(p).toggleInvis();
                     break;
                 default:
                     p.sendMessage("Don't even worry, nothing dangerous happened :^)");

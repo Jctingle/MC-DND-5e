@@ -27,6 +27,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
+import org.bukkit.entity.WanderingTrader;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
@@ -155,7 +156,10 @@ public class Mobicon implements CommandExecutor,Listener,TabCompleter {
                         token.setSilent(true);
                         token.setAI(false);
                         //check and set max health higher than current
-
+                        if(mobType.equalsIgnoreCase("wandering_trader")){
+                            WanderingTrader sl = (WanderingTrader) token;
+                            sl.setDespawnDelay(0);
+                        }
                         token.setCustomName(mobName);
                         token.setCustomNameVisible(true); 
                         token.setPersistent(true);

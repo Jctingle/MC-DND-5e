@@ -3,7 +3,7 @@ package jeffersondev.Tokens;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
+
 
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
@@ -20,6 +20,7 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
 
 import jeffersondev.App;
 import jeffersondev.Utilities.MultiTool;
@@ -67,10 +68,6 @@ public class MobMoverJCT{
     public static void fireMovement(Player e1) {
             Player p = e1;
             if(movingMob.containsKey(p)) {
-                if(p.isSneaking()){
-                    menu(p);
-                }
-                else{
                     //mode dependant
                     if (movingMob.get(p).isCursor() == true){
                         Location eyeLoc = p.getEyeLocation();
@@ -89,7 +86,11 @@ public class MobMoverJCT{
                         World world = p.getWorld();
                         RayTraceResult rtxResult = world.rayTraceBlocks(eyeLoc, eyeLoc.getDirection(), 35, FluidCollisionMode.NEVER, true);
                         if (rtxResult != null){
-                            movingMob.get(p).movingMobReturn().teleport(rtxResult.getHitPosition().toLocation(world));
+                            Location destination = rtxResult.getHitPosition().toLocation(world);
+                            Vector targetDirection = p.getLocation().getDirection();
+                            destination.setDirection(targetDirection);
+                            destination.setPitch(0);
+                            movingMob.get(p).movingMobReturn().teleport(destination);
                         }
                     }
                     else {
@@ -104,8 +105,7 @@ public class MobMoverJCT{
                         }
 
                     }
-                }
-            } 
+            }
             //3rd step
             //RTX between point A and B, ifcanpath.
             //Or just teleport
@@ -121,7 +121,7 @@ public class MobMoverJCT{
             }
     }
     public static Inventory remoteGui(Player invoker){
-        Inventory inv = Bukkit.createInventory(null, InventoryType.DISPENSER, "Mover Remote");
+        Inventory inv = Bukkit.createInventory(null, InventoryType.BARREL, "Mover Remote");
         //button 1
         ItemStack slotOne = new ItemStack(Material.LIME_CONCRETE);
         ItemMeta oneMeta = slotOne.getItemMeta();
@@ -133,10 +133,17 @@ public class MobMoverJCT{
         ItemMeta twoMeta = slotTwo.getItemMeta();
         ArrayList<String> lookMe = new ArrayList<String>();
         lookMe.add("Rotates the mob to face the player");
-        twoMeta.setDisplayName("Change Rotation");
+        twoMeta.setDisplayName("Change Rotation +");
         slotTwo.setItemMeta(twoMeta); 
         inv.setItem(1, slotTwo);
         //button 3
+        ItemStack slotThree = new ItemStack(Material.SPYGLASS);
+        ItemMeta threeMeta = slotThree.getItemMeta();
+        ArrayList<String> lookAway = new ArrayList<String>();
+        lookAway.add("Rotates the mob to face away from the player");
+        threeMeta.setDisplayName("Change Rotation -");
+        slotThree.setItemMeta(threeMeta); 
+        inv.setItem(2, slotThree);
         //button 4
         ItemStack slotFour = new ItemStack(Material.RED_CONCRETE);
         ItemMeta fourMeta = slotFour.getItemMeta();
@@ -187,8 +194,18 @@ public class MobMoverJCT{
             inv.setItem(7, slotEight);
             
         }
-        //button 9
-        //button 9 will be option to do group move, will have it's own collection
+        if(movingMob.get(invoker).isAgeable()){
+            ItemStack slotNine = new ItemStack(Material.EGG);
+            ItemMeta nineMeta = slotNine.getItemMeta();
+            nineMeta.setDisplayName("Toggle Age State");
+            slotNine.setItemMeta(nineMeta); 
+            inv.setItem(8, slotNine);
+        }
+        ItemStack slotTen = new ItemStack(Material.GLASS);
+        ItemMeta tenMeta = slotTen.getItemMeta();
+        tenMeta.setDisplayName("Toggle Visiblity");
+        slotTen.setItemMeta(tenMeta);
+        inv.setItem(9, slotTen);
         //What options do I want in the remote control.
         //Move up
         //move down
