@@ -40,15 +40,6 @@ public class MobMoverJCT{
         ItemStack pointerItem = toolBox.mobMover();
         return pointerItem;
     }
-    // public static void onRightClickBody(Player p, LivingEntity clickedMob) {
-    //             if(p.isSneaking()){
-    //                 if(clickedMob.getScoreboardTags().contains("token")){
-    //                     Moveable mover = new Moveable(clickedMob, clickedMob.getLocation(), false);
-    //                     movingMob.put(p, mover);
-    //                     p.sendMessage(clickedMob.getName() + " Selected, you can now right click a destination, or shift left click to open the menu");
-    //                 }
-    //             }
-    // }
     public static void RTXEntitySelect(Player p) {
         Location eyeLoc = p.getEyeLocation();
         World world = p.getWorld();
@@ -106,9 +97,6 @@ public class MobMoverJCT{
 
                     }
             }
-            //3rd step
-            //RTX between point A and B, ifcanpath.
-            //Or just teleport
         }
     public static void menu(Player p){
             if(movingMob.containsKey(p)) {
@@ -201,17 +189,19 @@ public class MobMoverJCT{
             slotNine.setItemMeta(nineMeta); 
             inv.setItem(8, slotNine);
         }
-        ItemStack slotTen = new ItemStack(Material.GLASS);
-        ItemMeta tenMeta = slotTen.getItemMeta();
-        tenMeta.setDisplayName("Toggle Visiblity");
-        slotTen.setItemMeta(tenMeta);
-        inv.setItem(9, slotTen);
-        //What options do I want in the remote control.
-        //Move up
-        //move down
-        //toggle TP/Path
-        //attack animation
-        //mount
+            ItemStack slotTen = new ItemStack(Material.GLASS);
+            ItemMeta tenMeta = slotTen.getItemMeta();
+            tenMeta.setDisplayName("Toggle Visiblity");
+            slotTen.setItemMeta(tenMeta);
+            inv.setItem(9, slotTen);
+        //Spacer
+        if(movingMob.get(invoker).isDog()){
+            ItemStack slotEleven = new ItemStack(Material.REDSTONE_BLOCK);
+            ItemMeta elevenMeta = slotEleven.getItemMeta();
+            elevenMeta.setDisplayName("Toggle Angry");
+            slotEleven.setItemMeta(elevenMeta);
+            inv.setItem(10, slotEleven);
+        }
         return inv;
     }
 }

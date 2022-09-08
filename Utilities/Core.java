@@ -265,6 +265,9 @@ public class Core implements CommandExecutor,Listener {
                 case 9:
                     MobMoverJCT.returnMovingMob(p).toggleInvis();
                     break;
+                case 10:
+                    MobMoverJCT.returnMovingMob(p).toggleDogAngry();
+                    break;
                 default:
                     p.sendMessage("Don't even worry, nothing dangerous happened :^)");
             }

@@ -11,6 +11,7 @@ import org.bukkit.entity.MagmaCube;
 import org.bukkit.entity.Phantom;
 import org.bukkit.entity.Player;
 import org.bukkit.entity.Slime;
+import org.bukkit.entity.Wolf;
 import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
@@ -125,6 +126,26 @@ public class Moveable {
       }
       else{
          return false;
+      }
+   }
+   public boolean isDog(){
+      if(TOKEN instanceof Wolf) {
+         return true;
+      }
+      else{
+         return false;
+      }
+   }
+   public void toggleDogAngry(){
+      if(TOKEN instanceof Wolf) {
+         Wolf wolf = (Wolf) TOKEN;
+         boolean angry = wolf.isAngry();
+         if(angry){
+            wolf.setAngry(false);
+         }
+         else{
+            wolf.setAngry(true);
+         }
       }
    }
    public void toggleGrowth(){
