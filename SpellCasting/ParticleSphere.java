@@ -20,8 +20,8 @@ public class ParticleSphere {
         for (double i = 0; i <= Math.PI; i += Math.PI / 10) {
             //I will need a converter her to take Feet and represent them in game as 1/3 of a block
             //something like x/3, default is radius = 1 block so as long as i'm basing it off of radius
-            double radius = Math.sin(i) * SIZEFACTOR/3;
-            double y = Math.cos(i) * SIZEFACTOR/3;
+            double radius = Math.sin(i) * SIZEFACTOR;
+            double y = Math.cos(i) * SIZEFACTOR;
             for (double a = 0; a < Math.PI * 2; a+= Math.PI / 10) {
                 double x = Math.cos(a) * radius;
                 double z = Math.sin(a) * radius;

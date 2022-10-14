@@ -72,7 +72,9 @@ public class Grimoire implements CommandExecutor,Listener {
     public Inventory spellViewer(Player viewer){
         File dir = new File("plugins/DMTools");
         File[] directoryListing = dir.listFiles();
-        Inventory inv = Bukkit.createInventory(null, 18, "Spell Library"); 
+        Double leng = (double) directoryListing.length;
+        Integer calco = (int) Math.ceil(leng/9);
+        Inventory inv = Bukkit.createInventory(null, calco*9, "Spell Library"); 
         //do some math here and find the factor of 9, then do multiple pages, blah blah blah
         if (directoryListing != null) {
             Integer itercount = 0;

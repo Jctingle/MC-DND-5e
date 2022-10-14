@@ -5,6 +5,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import github.scarsz.discordsrv.DiscordSRV;
 import jeffersondev.SpellCasting.Grimoire;
 import jeffersondev.SpellCasting.Spellcaster;
 import jeffersondev.SpellCasting.Spellcomponent;
@@ -12,31 +13,28 @@ import jeffersondev.Tokens.Equipmentmanager;
 import jeffersondev.Tokens.Interact;
 import jeffersondev.Tokens.MobMoverJCT;
 import jeffersondev.Tokens.Mobicon;
+import jeffersondev.Utilities.Core;
+import jeffersondev.Utilities.DicerollListener;
+import jeffersondev.Utilities.InitiativeCore;
 import jeffersondev.Utilities.LaserPointer;
-import jeffersondev.Utilities.PermissionGiver;
 import jeffersondev.Utilities.Ruler;
+import jeffersondev.Utilities.ToolBox;
 import jeffersondev.Utilities.dmNotes;
-import jeffersondev.Utilities.initiative;
 public class App extends JavaPlugin {
+    private DicerollListener dicerollListener = new DicerollListener(this);
+    
     @Override
     public void onEnable() {
         Plugin plugin = Bukkit.getPluginManager().getPlugin("DMTools");
         File f = new File(plugin.getDataFolder() + "/");
+        DiscordSRV.api.subscribe(dicerollListener);
         if(!f.exists()){
             f.mkdir();
         }
-        LaserPointer pointer = new LaserPointer(this);
         getLogger().info("DND Tools Loaded");
-        this.getCommand("lpointer").setExecutor(pointer);
-        getServer().getPluginManager().registerEvents(pointer, this); 
-
         dmNotes notery = new dmNotes(this);
         this.getCommand("dnote").setExecutor(notery);
         getServer().getPluginManager().registerEvents(notery, this);
-
-        initiative innit = new initiative(this);
-        this.getCommand("init").setExecutor(innit);
-        getServer().getPluginManager().registerEvents(innit, this);
         
         Mobicon mobi = new Mobicon(this);
         this.getCommand("mobi").setExecutor(mobi);
@@ -62,21 +60,22 @@ public class App extends JavaPlugin {
         this.getCommand("spellbook").setExecutor(spellcast);
         getServer().getPluginManager().registerEvents(spellcast, this); 
 
-        Ruler ruler = new Ruler(this);
-        this.getCommand("ruler").setExecutor(ruler);
-        getServer().getPluginManager().registerEvents(ruler, this); 
+        Core systemCore = new Core(this);
+        this.getCommand("game").setExecutor(systemCore);
+        getServer().getPluginManager().registerEvents(systemCore, this); 
 
-        MobMoverJCT mobmover = new MobMoverJCT(this);
-        this.getCommand("mobmover").setExecutor(mobmover);
-        getServer().getPluginManager().registerEvents(mobmover, this); 
+        InitiativeCore initCore = new InitiativeCore(this);
+        this.getCommand("combat").setExecutor(initCore);
+        getServer().getPluginManager().registerEvents(initCore, this); 
 
-        PermissionGiver permissiongiver = new PermissionGiver(this);
-        this.getCommand("permissiongiver").setExecutor(permissiongiver);
-        getServer().getPluginManager().registerEvents(permissiongiver, this); 
+        ToolBox toolCore = new ToolBox(this);
+        this.getCommand("tools").setExecutor(toolCore);
+        getServer().getPluginManager().registerEvents(toolCore, this); 
 
     }
     @Override
     public void onDisable() {
+        DiscordSRV.api.unsubscribe(dicerollListener);
         getLogger().info("Unloading DND Tools");
     }
 }

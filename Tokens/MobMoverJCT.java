@@ -3,106 +3,62 @@ package jeffersondev.Tokens;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Vector;
+
 
 import org.bukkit.Bukkit;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.attribute.Attribute;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.HumanEntity;
 import org.bukkit.entity.LivingEntity;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.block.Action;
 import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.inventory.InventoryDragEvent;
 import org.bukkit.event.inventory.InventoryType;
-import org.bukkit.event.player.PlayerDropItemEvent;
-import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.bukkit.event.player.PlayerInteractEntityEvent;
-import org.bukkit.event.player.PlayerInteractEvent;
-import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.Inventory;
-import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.util.RayTraceResult;
+import org.bukkit.util.Vector;
 
 import jeffersondev.App;
+import jeffersondev.Utilities.MultiTool;
 
 
-public class MobMoverJCT implements CommandExecutor,Listener {
+public class MobMoverJCT{
     private App app;
     public MobMoverJCT(App app){
         this.app = app;
     }
-    ArrayList<Player> activeMovers = new ArrayList<>();
-    Map<Player, Moveable> movingMob = new HashMap<Player, Moveable>();
-    @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-        Player p = ((Player) sender);
-        if(!activeMovers.contains(p)){
-            activeMovers.add(p);
-            ItemStack remote = matchItem();
-            p.getInventory().addItem(remote);
-            p.sendMessage("Please Shift click a token to select");
-        }
-        else{
-            activeMovers.remove(p);
-            ItemStack remote = matchItem();
-            p.getInventory().removeItem(remote);
-        }
-        return true;
+    MultiTool toolBox = new MultiTool();
+    static Map<Player, Moveable> movingMob = new HashMap<Player, Moveable>();
+    public static void deRegister(Player player){
+        movingMob.remove(player);;
     }
     public ItemStack matchItem(){
-        ItemStack pointerItem = new ItemStack(Material.TOTEM_OF_UNDYING);
-        ItemMeta pointerMeta = pointerItem.getItemMeta();
-        pointerMeta.setDisplayName("Mover");
-        pointerItem.setItemMeta(pointerMeta); 
-
+        ItemStack pointerItem = toolBox.mobMover();
         return pointerItem;
     }
-    @EventHandler
-    public void onRightClick(PlayerInteractEntityEvent e1) {
-        Player p = e1.getPlayer();
-            if(activeMovers.contains(p) && p.getInventory().getItemInMainHand().equals(matchItem()) && e1.getHand().equals(EquipmentSlot.HAND)){
-                if(p.isSneaking()){
-                    e1.setCancelled(true);
-                    LivingEntity clickedMob = (LivingEntity) e1.getRightClicked();
-                    if(clickedMob.getScoreboardTags().contains("token")){
-                        Moveable mover = new Moveable(clickedMob, clickedMob.getLocation(), false);
-                        movingMob.put(p, mover);
-                        p.sendMessage(clickedMob.getName() + " Selected, you can now right click a destination, or shift left click to open the menu");
-                        //create new moveable object, store inside hashmap, reference object and helper methods
-                    }
-                //if sneaking open menu to do shit
-                //menu options
-                //up 1 block
-                //down one block
-                //activate Pathing mode vs activating whatever mode, the method that returns an Inventory will have conditionals for the construction, maybe make a pre-defined remote object?
-            }
+    public static void RTXEntitySelect(Player p) {
+        Location eyeLoc = p.getEyeLocation();
+        World world = p.getWorld();
+        Double maxDistance = 100.0;
+        RayTraceResult rtxResult = world.rayTraceEntities(eyeLoc, eyeLoc.getDirection(), maxDistance, 0.1, (entity) -> (entity.getScoreboardTags().contains("token")));
+        LivingEntity clickedMob = (LivingEntity) rtxResult.getHitEntity();
+        if(rtxResult != null){
+            Moveable mover = new Moveable(clickedMob, clickedMob.getLocation(), false);
+            movingMob.put(p, mover);
+            p.sendMessage(clickedMob.getName() + " Selected, you can now right click a destination, or shift left click to open the menu");
         }
     }
-    @EventHandler
-    public void onRightClick(PlayerInteractEvent e1) {
-        if (e1.getAction() == Action.RIGHT_CLICK_AIR || e1.getAction() == Action.RIGHT_CLICK_BLOCK) {
-            Player p = e1.getPlayer();
-            if(movingMob.containsKey(p) && p.getInventory().getItemInMainHand().equals(matchItem()) && e1.getHand().equals(EquipmentSlot.HAND)) {
-                if(p.isSneaking()){
-                    //do nothing now, need a new way of opening the frickin thing
-                    //will have to not use this heh
-                    //some other way/trigger to open a GUI
-                    e1.setCancelled(true);
-                }
-                else{
-                    e1.setCancelled(true);
+    public static Moveable returnMovingMob(Player p){
+        Moveable returner = movingMob.get(p);
+        return returner;
+    }
+    public static void fireMovement(Player e1) {
+            Player p = e1;
+            if(movingMob.containsKey(p)) {
                     //mode dependant
                     if (movingMob.get(p).isCursor() == true){
                         Location eyeLoc = p.getEyeLocation();
@@ -121,7 +77,11 @@ public class MobMoverJCT implements CommandExecutor,Listener {
                         World world = p.getWorld();
                         RayTraceResult rtxResult = world.rayTraceBlocks(eyeLoc, eyeLoc.getDirection(), 35, FluidCollisionMode.NEVER, true);
                         if (rtxResult != null){
-                            movingMob.get(p).movingMobReturn().teleport(rtxResult.getHitPosition().toLocation(world));
+                            Location destination = rtxResult.getHitPosition().toLocation(world);
+                            Vector targetDirection = p.getLocation().getDirection();
+                            destination.setDirection(targetDirection);
+                            destination.setPitch(0);
+                            movingMob.get(p).movingMobReturn().teleport(destination);
                         }
                     }
                     else {
@@ -136,25 +96,20 @@ public class MobMoverJCT implements CommandExecutor,Listener {
                         }
 
                     }
-                }
-            } 
-            //3rd step
-            //RTX between point A and B, ifcanpath.
-            //Or just teleport
+            }
         }
-        else if (e1.getAction() == Action.LEFT_CLICK_AIR || e1.getAction() == Action.LEFT_CLICK_BLOCK) {
-            Player p = e1.getPlayer();
-            if(movingMob.containsKey(p) && p.getInventory().getItemInMainHand().equals(matchItem()) && e1.getHand().equals(EquipmentSlot.HAND)) {
+    public static void menu(Player p){
+            if(movingMob.containsKey(p)) {
                 if(p.isSneaking()){
-                    e1.setCancelled(true);
+                    p.openInventory(remoteGui(p));
+                }
+                else if(p.getOpenInventory().getTitle().equals("Mover Remote")){
                     p.openInventory(remoteGui(p));
                 }
             }
-
-        }
     }
-    public Inventory remoteGui(Player invoker){
-        Inventory inv = Bukkit.createInventory(null, InventoryType.DISPENSER, "Mover Remote");
+    public static Inventory remoteGui(Player invoker){
+        Inventory inv = Bukkit.createInventory(null, InventoryType.BARREL, "Mover Remote");
         //button 1
         ItemStack slotOne = new ItemStack(Material.LIME_CONCRETE);
         ItemMeta oneMeta = slotOne.getItemMeta();
@@ -162,27 +117,21 @@ public class MobMoverJCT implements CommandExecutor,Listener {
         slotOne.setItemMeta(oneMeta); 
         inv.setItem(0, slotOne);
         //button 2
+        ItemStack slotTwo = new ItemStack(Material.COMPASS);
+        ItemMeta twoMeta = slotTwo.getItemMeta();
+        ArrayList<String> lookMe = new ArrayList<String>();
+        lookMe.add("Rotates the mob to face the player");
+        twoMeta.setDisplayName("Change Rotation +");
+        slotTwo.setItemMeta(twoMeta); 
+        inv.setItem(1, slotTwo);
         //button 3
-        if (!movingMob.get(invoker).isPath()){
-            ItemStack metaInsert = new ItemStack(Material.NETHER_STAR);
-            ItemMeta threeMeta = metaInsert.getItemMeta();
-            ArrayList<String> movementType = new ArrayList<String>();
-            movementType.add("Teleport");
-            threeMeta.setDisplayName("Toggle Pathing Mode");
-            threeMeta.setLore(movementType);
-            metaInsert.setItemMeta(threeMeta);
-            inv.setItem(2, metaInsert);
-        }
-        else{
-            ItemStack metaInsert = new ItemStack(Material.LEATHER_BOOTS);
-            ItemMeta threeMeta = metaInsert.getItemMeta();
-            ArrayList<String> movementType = new ArrayList<String>();
-            movementType.add("Path");
-            threeMeta.setDisplayName("Toggle Pathing Mode");
-            threeMeta.setLore(movementType);
-            metaInsert.setItemMeta(threeMeta);
-            inv.setItem(2, metaInsert);
-        }
+        ItemStack slotThree = new ItemStack(Material.SPYGLASS);
+        ItemMeta threeMeta = slotThree.getItemMeta();
+        ArrayList<String> lookAway = new ArrayList<String>();
+        lookAway.add("Rotates the mob to face away from the player");
+        threeMeta.setDisplayName("Change Rotation -");
+        slotThree.setItemMeta(threeMeta); 
+        inv.setItem(2, slotThree);
         //button 4
         ItemStack slotFour = new ItemStack(Material.RED_CONCRETE);
         ItemMeta fourMeta = slotFour.getItemMeta();
@@ -231,93 +180,28 @@ public class MobMoverJCT implements CommandExecutor,Listener {
             eightMeta.setDisplayName("Decrease size by 1");
             slotEight.setItemMeta(eightMeta); 
             inv.setItem(7, slotEight);
+            
         }
-        //button 9
-        //button 9 will be option to do group move, will have it's own collection
-        //What options do I want in the remote control.
-        //Move up
-        //move down
-        //toggle TP/Path
-        //attack animation
-        //mount
+        if(movingMob.get(invoker).isAgeable()){
+            ItemStack slotNine = new ItemStack(Material.EGG);
+            ItemMeta nineMeta = slotNine.getItemMeta();
+            nineMeta.setDisplayName("Toggle Age State");
+            slotNine.setItemMeta(nineMeta); 
+            inv.setItem(8, slotNine);
+        }
+            ItemStack slotTen = new ItemStack(Material.GLASS);
+            ItemMeta tenMeta = slotTen.getItemMeta();
+            tenMeta.setDisplayName("Toggle Visiblity");
+            slotTen.setItemMeta(tenMeta);
+            inv.setItem(9, slotTen);
+        //Spacer
+        if(movingMob.get(invoker).isDog()){
+            ItemStack slotEleven = new ItemStack(Material.REDSTONE_BLOCK);
+            ItemMeta elevenMeta = slotEleven.getItemMeta();
+            elevenMeta.setDisplayName("Toggle Angry");
+            slotEleven.setItemMeta(elevenMeta);
+            inv.setItem(10, slotEleven);
+        }
         return inv;
     }
-    @EventHandler
-    public void onInventoryClick(final InventoryClickEvent e) {
-        if (!e.getView().getTitle().equals("Mover Remote")) return;
-        else{
-            Integer buttonClicked = e.getRawSlot();
-            e.setCancelled(true);
-            Player p = Bukkit.getPlayer(e.getWhoClicked().getName());
-            // p.sendMessage("click registered");
-            // p.sendMessage(buttonClicked.toString());
-            switch (buttonClicked){
-                case 0:
-                    movingMob.get(p).moveTo();
-                    break;
-                case 1:
-                case 2:
-                    if (movingMob.get(p).isPath()){
-                        movingMob.get(p).pathBool();
-                        p.openInventory(remoteGui(p));
-                        break;
-
-                    }
-                    else{
-                        movingMob.get(p).pathBool();
-                        p.openInventory(remoteGui(p));
-                        break;
-                    }
-                case 3:
-                    movingMob.get(p).moveToB();
-                    break;
-
-                case 4:
-                if (movingMob.get(p).isCursor()){
-                    movingMob.get(p).cursorBool();
-                    p.openInventory(remoteGui(p));
-                    break;
-
-                }
-                else{
-                    movingMob.get(p).cursorBool();
-                    p.openInventory(remoteGui(p));
-                    break;
-                }
-                case 5:
-                    movingMob.get(p).swingArm();
-                    break;
-                case 6:
-                        movingMob.get(p).sizeUp();
-                    break;
-                case 7:
-                    movingMob.get(p).sizeDown();
-                    break;
-                case 8:
-
-                    break;
-
-
-            }
-        }
-    }
-    @EventHandler
-    public void onInventoryClick(final InventoryDragEvent e) {
-        if (!e.getView().getTitle().equals("Mover Remote")) return;
-        else{
-            e.setCancelled(true);
-        }
-    }
-    @EventHandler
-    public void onItemDrop(final PlayerDropItemEvent e) {
-        if (e.getItemDrop() != matchItem()) return;
-        else{
-            activeMovers.remove(e.getPlayer());
-            e.setCancelled(true);
-        }
-    }
-    //playerquit event too
-    //GUI Code, remote control in a 3x3?
-    //new crafting-menu? IDK what else the 3x3 interface is a part of.
-    //check the different interface types ore the different inventories
 }
