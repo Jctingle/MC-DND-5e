@@ -16,6 +16,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scoreboard.DisplaySlot;
 import org.bukkit.scoreboard.Objective;
@@ -48,7 +49,7 @@ public class InitiativeCore implements CommandExecutor,Listener {
                     //do join code, make it same action regardless of ifstarted
                     //collect args[1,2]
                     if (!activeRounds.get(0).returnAllNames().contains(args[1])){                   
-                        TurnHolder joiner = new TurnHolder(p, Integer.parseInt(args[2]), args[1]);
+                        TurnHolder joiner = new TurnHolder(p.getUniqueId(), Integer.parseInt(args[2]), args[1]);
                         activeRounds.get(0).joinRound(joiner);
                         p.sendMessage("Thank you for joining a round: " + args[1] + " with an initiative of: " + args[2]);
                     }
@@ -110,6 +111,14 @@ public class InitiativeCore implements CommandExecutor,Listener {
                 }
                 return true;
             }
+            else if(args[0].equals("endturn")){
+                //remove endturn from players inventory?
+                //mostly part of a debugging scheme
+                // activeRounds.get(0).endOfTurnCleanup();
+                // activeRounds.get(0).nextKey();
+                // activeRounds.get(0).startOfTurnSetup();
+                return true;
+            }
             //commence
             //end
             //kill
@@ -124,6 +133,18 @@ public class InitiativeCore implements CommandExecutor,Listener {
     }
     public static void HandleRightClick(Player flagger){
         activeRounds.get(0).rightClickBridge(flagger);
+    }
+    @EventHandler
+    public void onPlayerJoin(final PlayerJoinEvent e) {
+        e.getPlayer().sendMessage("debug line 139, is the event triggering at all?");
+        if(activeRound && activeRounds.get(0).returnAllNames().contains(e.getPlayer().getName())){
+            e.getPlayer().sendMessage("debug line 140: scoreboard on login");
+            e.getPlayer().setScoreboard(board);
+        }
+        else if (!activeRound && e.getPlayer().getInventory().contains(endTurnItem)){
+            e.getPlayer().getInventory().remove(endTurnItem);
+        }
+        //else if no activeround then do remove end turn item
     }
     public void initiateScoreBoard(){
         Objective objecteye = board.registerNewObjective("initiative", "dummy", "initiative", RenderType.INTEGER);

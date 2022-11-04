@@ -86,8 +86,9 @@ public class InitiativeRound {
       //this goes through every TurnHolder object within the same initiative Block;
       for(TurnHolder EntryMember: this.initBlock.get(currentTurn)){
          // if(!EntryMember.hasTakenTurn()){
-            if(!EntryMember.getOwner().getInventory().contains(endTurnItem)){
-               EntryMember.getOwner().getInventory().addItem(endTurnItem);
+            Player current = Bukkit.getPlayer(EntryMember.getOwner());
+            if(!current.getInventory().contains(endTurnItem)){
+               current.getInventory().addItem(endTurnItem);
             }
          // }
       }
@@ -101,21 +102,24 @@ public class InitiativeRound {
    public void startOfTurnSetup(){
       if(this.initBlock.get(currentTurn).size() > 1){
          for(TurnHolder EntryMember: this.initBlock.get(currentTurn)){
-            EntryMember.getOwner().sendTitle("Your Turn", "Please make your move.", 1, 20, 1);
+            Player current = Bukkit.getPlayer(EntryMember.getOwner());
+            current.sendTitle("Your Turn", "Please make your move.", 1, 20, 1);
             EntryMember.setActive();
             if (multiTurnHandler.containsKey(EntryMember.getOwner())){
-               multiTurnHandler.replace(EntryMember.getOwner(), multiTurnHandler.get(EntryMember.getOwner()) + 1);
+               multiTurnHandler.replace(current, multiTurnHandler.get(EntryMember.getOwner()) + 1);
             }
             else{
-               multiTurnHandler.put(EntryMember.getOwner(), 1);
+               multiTurnHandler.put(current, 1);
             }
          }
       }
       //just a simple turn
       else{
+         
          TurnHolder EntryMember = this.initBlock.get(currentTurn).get(0);
+         Player current = Bukkit.getPlayer(EntryMember.getOwner());
          EntryMember.setActive();
-         EntryMember.getOwner().sendTitle("Your Turn", "Please make your move.", 1, 20, 1);
+         current.sendTitle("Your Turn", "Please make your move.", 1, 20, 1);
       }
       currentTurnItemDelivery();
    }
@@ -124,18 +128,19 @@ public class InitiativeRound {
       for(TurnHolder pickMe : allCurrentTurns()){
          if(pickMe.getName().equals(name)){
             TurnHolder EntryMember = pickMe;
+            Player current = Bukkit.getPlayer(EntryMember.getOwner());
             if(EntryMember.isActive() && this.initBlock.get(EntryMember.getRoll()).size() > 1){
                EntryMember.setNormal();
                EntryMember.setDead();
                purgeIndexMember(EntryMember.getRoll(),EntryMember);
                //no item collection here, what do I need to do:
                if(multiTurnHandler.get(EntryMember.getOwner()) > 1){
-                  multiTurnHandler.put(EntryMember.getOwner(), multiTurnHandler.get(EntryMember.getOwner()) - 1);
+                  multiTurnHandler.put(current, multiTurnHandler.get(EntryMember.getOwner()) - 1);
                   //do nothing
                }
                else{
                   multiTurnHandler.remove(EntryMember.getOwner());
-                  EntryMember.getOwner().getInventory().remove(endTurnItem);
+                  current.getInventory().remove(endTurnItem);
                   if(multiTurnHandler.size() == 0){
                      endOfTurnCleanup();
                      nextKey();
@@ -145,7 +150,7 @@ public class InitiativeRound {
             }
             //if name is just currently active
             else if(EntryMember.isActive() && this.initBlock.get(EntryMember.getRoll()).size() == 1){
-               EntryMember.getOwner().getInventory().remove(endTurnItem);
+               current.getInventory().remove(endTurnItem);
                purgeIndexMember(EntryMember.getRoll(),EntryMember);
                EntryMember.setNormal();
                EntryMember.setDead();

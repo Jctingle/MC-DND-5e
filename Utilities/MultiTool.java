@@ -18,7 +18,7 @@ public class MultiTool {
       allItems.add(this.laserPointer()); 
       allItems.add(this.mobMover()); ; 
       allItems.add(this.ruler()); 
-      allItems.add(this.endTurn()); 
+      // allItems.add(this.endTurn()); 
       allItems.add(this.grimoire()); 
 
       boxItems.add(this.laserPointer()); 

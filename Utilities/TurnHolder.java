@@ -1,18 +1,20 @@
 package jeffersondev.Utilities;
 
 
+import java.util.UUID;
+
 import org.bukkit.entity.Player;
 import org.bukkit.scoreboard.Team;
 
 public class TurnHolder {
-    private Player TURNOWNER;
+    private UUID TURNOWNER;
     private int INITIATIVE;
     private String TURNNAME;
     private Boolean isActive = false;
     private Boolean isDead = false;
     private Boolean isTaken = false;
     //Pass in and store the scoreboard manager
-     TurnHolder(Player turnowner, int initiative, String turnname){
+     TurnHolder(UUID turnowner, int initiative, String turnname){
          this.TURNOWNER = turnowner;
          this.INITIATIVE = initiative;
          this.TURNNAME = turnname;
@@ -47,7 +49,7 @@ public class TurnHolder {
      public Boolean isDead(){
         return this.isDead;
        }
-     public Player getOwner(){
+     public UUID getOwner(){
       return this.TURNOWNER;
      }
      public int getRoll(){

@@ -79,6 +79,7 @@ public class Core implements CommandExecutor,Listener {
             Gamer memoryLoad = load("plugins/DMTools/" + e.getPlayer().getName() + ".gamer");
             activePlayers.put(e.getPlayer(), memoryLoad.getCharacter());
         }
+        //code to rejoin a disconnected player to an initiative round
         //check if they have a gamer profile, if so, load it in.
     }
     @EventHandler
@@ -90,6 +91,7 @@ public class Core implements CommandExecutor,Listener {
         //save cache of the player object which will also contain their spell grimoire.
         //spellcasting will be cleaned up
     }
+    //event handler for death of a mob that is attached via mobmover
     public static Boolean isGamer(Player p){
         if(activePlayers.containsKey(p)) return true;
         else                             return false;
@@ -223,7 +225,8 @@ public class Core implements CommandExecutor,Listener {
             e.setCancelled(true);
             Player p = Bukkit.getPlayer(e.getWhoClicked().getName());
             // p.sendMessage("click registered");
-            // p.sendMessage(buttonClicked.toString());
+            // p.sendMessage(buttonClicked.toString());\
+            //this should become a whole public class at some point, just a switchboard <- beautiful pun
             switch (buttonClicked){
                 case 0:
                     MobMoverJCT.returnMovingMob(p).moveTo();
