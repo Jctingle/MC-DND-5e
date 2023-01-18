@@ -1,8 +1,8 @@
-package jeffersondev.Utilities;
+package jeffersondev.Utilities.Item_Management;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
-
+import jeffersondev.Utilities.Core;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;

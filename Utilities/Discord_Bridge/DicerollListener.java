@@ -1,8 +1,9 @@
-package jeffersondev.Utilities;
+package jeffersondev.Utilities.Discord_Bridge;
 
 import github.scarsz.discordsrv.api.Subscribe;
 import github.scarsz.discordsrv.api.events.*;
 import jeffersondev.App;
+import jeffersondev.Utilities.Core;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.TextComponent;
@@ -37,7 +38,7 @@ public class DicerollListener {
             e.setCancelled(true);
             // Bukkit.broadcastMessage(ChatColor.DARK_RED + totalStringed);
             int initiativeRoll = Integer.valueOf(totalStringed);
-            TextComponent hoverable = new TextComponent("Initiative Roll of: [" + totalStringed + "]");
+            TextComponent hoverable = new TextComponent("[" + ChatColor.BLUE + "Initiative" + ChatColor.WHITE + "]: " + "Initiative Roll of: [" + totalStringed + "]");
             hoverable.setHoverEvent(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text("Click here to use this roll in an active initiative round")));
 
             //future clickable event;
@@ -54,19 +55,7 @@ public class DicerollListener {
             int totalIndex = output.indexOf("beyond::");
             String ShortenStringed = output.substring(totalIndex + 8);
             e.setCancelled(true);
-            Bukkit.broadcastMessage(ChatColor.DARK_RED + ShortenStringed);
-            if (ShortenStringed.contains("**20**")){
-                for (Player p : Core.getCharacters().keySet()){
-                    if (output.contains(Core.getCharacters().get(p))){
-                        Firework firework = p.getWorld().spawn(p.getLocation(), Firework.class);
-                        FireworkMeta meta = (FireworkMeta) firework.getFireworkMeta();
-                        meta.addEffect(FireworkEffect.builder().withColor(Color.RED).withColor(Color.WHITE).with(Type.BALL_LARGE).withFlicker().build());
-                        meta.setPower(1);
-                        firework.setFireworkMeta(meta);
-                    }
-                }
-            }
-
+            Bukkit.broadcastMessage("[" + ChatColor.RED + "DiceRoll Bridge" + ChatColor.WHITE + "]: " + ChatColor.DARK_RED + ShortenStringed);
         }
 
     }    

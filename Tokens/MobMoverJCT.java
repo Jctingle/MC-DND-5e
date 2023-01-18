@@ -6,6 +6,7 @@ import java.util.Map;
 
 
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.FluidCollisionMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -23,7 +24,7 @@ import org.bukkit.util.RayTraceResult;
 import org.bukkit.util.Vector;
 
 import jeffersondev.App;
-import jeffersondev.Utilities.MultiTool;
+import jeffersondev.Utilities.Item_Management.MultiTool;
 
 
 public class MobMoverJCT{
@@ -49,7 +50,7 @@ public class MobMoverJCT{
         if(rtxResult != null){
             Moveable mover = new Moveable(clickedMob, clickedMob.getLocation(), false);
             movingMob.put(p, mover);
-            p.sendMessage(clickedMob.getName() + " Selected, you can now right click a destination, or shift left click to open the menu");
+            p.sendMessage("[" + ChatColor.GOLD + "Mover" + ChatColor.WHITE + "]: " + clickedMob.getName() + " Selected, you can now right click a destination, or shift left click empty air to open the menu");
         }
     }
     public static Moveable returnMovingMob(Player p){

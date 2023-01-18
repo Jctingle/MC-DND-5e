@@ -3,6 +3,7 @@ package jeffersondev.Utilities;
 import java.text.DecimalFormat;
 import java.util.HashMap;
 
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Particle;
 import org.bukkit.entity.Entity;
@@ -46,12 +47,12 @@ public class Ruler{
                         Double distance = playerMeasure.get(p).distance(pSpot) * 3.0;
                         DecimalFormat df = new DecimalFormat("#.#"); 
                         String distanceString  = df.format(distance).toString();
-                        p.sendMessage("The distance is " + distanceString);
+                        p.sendMessage("[" + ChatColor.GREEN + "Ruler" + ChatColor.WHITE + "]: The distance is " + distanceString);
                         playerMeasure.remove(p);
                     }
                     else{
                         playerMeasure.put(p, pSpot);
-                        p.sendMessage("Point One Chosen, please select a location within 30 seconds");
+                        p.sendMessage("[" + ChatColor.GREEN + "Ruler" + ChatColor.WHITE + "]: Point One Chosen, please select a second location");
                     }
                 }
                 else{

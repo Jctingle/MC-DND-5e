@@ -1,4 +1,4 @@
-package jeffersondev.Utilities;
+package jeffersondev.Utilities.Initiative;
 
 import java.util.ArrayList;
 import java.util.Hashtable;
@@ -26,6 +26,8 @@ import org.bukkit.scoreboard.ScoreboardManager;
 import org.bukkit.scoreboard.Team;
 
 import jeffersondev.App;
+import jeffersondev.Utilities.Core;
+import jeffersondev.Utilities.Item_Management.MultiTool;
 
 public class InitiativeCore implements CommandExecutor,Listener {   
     private App app;
@@ -51,16 +53,19 @@ public class InitiativeCore implements CommandExecutor,Listener {
                     if (!activeRounds.get(0).returnAllNames().contains(args[1])){                   
                         TurnHolder joiner = new TurnHolder(p.getUniqueId(), Integer.parseInt(args[2]), args[1]);
                         activeRounds.get(0).joinRound(joiner);
-                        p.sendMessage("Thank you for joining a round: " + args[1] + " with an initiative of: " + args[2]);
+                        // p.sendMessage("Thank you for joining a round: " + args[1] + " with an initiative of: " + args[2]);
+                        if(Core.isGamer(p)){
+                            Bukkit.broadcastMessage("[" + ChatColor.BLUE + "Initiative" + ChatColor.WHITE + "]: Welcome to the round: " + args[1] + " with an initiative of: " + args[2]);
+                        }
                     }
                     else{
-                        p.sendMessage("Error, duplicate entry!");
+                        p.sendMessage("[" + ChatColor.BLUE + "Initiative" + ChatColor.WHITE + "]: Error, duplicate entry!");
                     }
                     return true;
                 }
                 else{
                     Player p = ((Player) sender);
-                    p.sendMessage("Please wait for a round to be initialized");
+                    p.sendMessage("[" + ChatColor.BLUE + "Initiative" + ChatColor.WHITE + "]: Please wait for a round to be initialized");
                     return true;
                 }
             }
@@ -68,7 +73,7 @@ public class InitiativeCore implements CommandExecutor,Listener {
             else if(args[0].equals("new")){
                 if(activeRound  == true){
                     Player p = ((Player) sender);
-                    p.sendMessage("There is currently another round in progress");
+                    p.sendMessage("[" + ChatColor.BLUE + "Initiative" + ChatColor.WHITE + "]: There is currently another round in progress");
                     
                     return true;
                 }
@@ -79,7 +84,7 @@ public class InitiativeCore implements CommandExecutor,Listener {
                     activeRounds.add(newRound);
                     activeRound = true;
                     activeRounds.get(0).startJoinableRound();
-                    Bukkit.broadcastMessage(ChatColor.GOLD + "New combat round initiated, please roll to join!");
+                    Bukkit.broadcastMessage("[" + ChatColor.BLUE + "Initiative" + ChatColor.WHITE + "]: " + ChatColor.GOLD + "New combat round initiated, please roll to join!");
                     return true;
                 }
             }
@@ -91,23 +96,27 @@ public class InitiativeCore implements CommandExecutor,Listener {
             }
             //purge the overall round, should be nice and just clear the one core
             else if(args[0].equals("end")){
-                //run other end code here
-                clearScoreBoard();
-                //aka PURGE END TURN ITEM FROM EVERYONE;
-                for(Player p : Core.getCharacters().keySet()){
-                    toolbox.purgePlayerOfSingleTools(p, endTurnItem);
-                    p.setScoreboard(manager.getNewScoreboard());
+                if(activeRound  == true){
+                    //run other end code here
+                    clearScoreBoard();
+                    //aka PURGE END TURN ITEM FROM EVERYONE;
+                    for(Player p : Core.getCharacters().keySet()){
+                        toolbox.purgePlayerOfSingleTools(p, endTurnItem);
+                        p.setScoreboard(manager.getNewScoreboard());
+                    }
+                    //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@scoreboard stuff here@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                    activeRounds.clear();
+                    activeRound = false;
                 }
-                //@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@scoreboard stuff here@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                activeRounds.clear();
-                activeRound = false;
                 return true;
             }
             //starts a round
             else if(args[0].equals("commence")){
-                for(Player p : Core.getCharacters().keySet()){
-                    p.setScoreboard(board);
-                    activeRounds.get(0).startFirstRound();
+                if(activeRound == true){
+                    for(Player p : Core.getCharacters().keySet()){
+                        p.setScoreboard(board);
+                        activeRounds.get(0).startFirstRound();
+                    }
                 }
                 return true;
             }
@@ -119,9 +128,6 @@ public class InitiativeCore implements CommandExecutor,Listener {
                 // activeRounds.get(0).startOfTurnSetup();
                 return true;
             }
-            //commence
-            //end
-            //kill
             else{
                 return true;
                 }
@@ -136,9 +142,7 @@ public class InitiativeCore implements CommandExecutor,Listener {
     }
     @EventHandler
     public void onPlayerJoin(final PlayerJoinEvent e) {
-        e.getPlayer().sendMessage("debug line 139, is the event triggering at all?");
         if(activeRound && activeRounds.get(0).returnAllNames().contains(e.getPlayer().getName())){
-            e.getPlayer().sendMessage("debug line 140: scoreboard on login");
             e.getPlayer().setScoreboard(board);
         }
         else if (!activeRound && e.getPlayer().getInventory().contains(endTurnItem)){

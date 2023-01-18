@@ -1,4 +1,4 @@
-package jeffersondev.Utilities;
+package jeffersondev.Utilities.Initiative;
 
 
 import java.util.UUID;

@@ -10,6 +10,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.potion.PotionEffectType;
 import org.bukkit.util.RayTraceResult;
 import jeffersondev.App;
+import jeffersondev.Utilities.Item_Management.MultiTool;
 
 //rename this stupid file lmao, fix errors and make it more stable generally
 public class LaserPointer{   
